@@ -1,172 +1,102 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
-	"strings"
 
 	"github.com/g8rswimmer/go-twitter/v2"
 )
 
-const MaxThreadLen = 100
+// maxThreadLen is the maximum number of tweets allowed to be fetched for constructing a thread
+const maxThreadLen = 100
 
-type ThreadSaver struct {
-	client *twitter.Client
+type threadSaver struct {
+	client Client
 	opts   twitter.TweetLookupOpts
 }
 
-func NewThreadSaver(token string, opts twitter.TweetLookupOpts) *ThreadSaver {
-	return &ThreadSaver{
-		client: &twitter.Client{
-			Authorizer: authorize{
-				Token: token,
-			},
-			Client: http.DefaultClient,
-			Host:   "https://api.twitter.com",
-		},
-		opts: opts,
+func newThreadSaver(token string, opts twitter.TweetLookupOpts) *threadSaver {
+	return &threadSaver{
+		client: newClient(token),
+		opts:   opts,
 	}
 }
 
-func (ts *ThreadSaver) GetThread(lastID string) (Thread, error) {
-	prevID := lastID
+func (ts *threadSaver) thread(lastID string) (*thread, error) {
+	tweets, err := ts.walkTweets(lastID, maxThreadLen)
+	if err != nil {
+		return nil, err
+	}
+
+	// Tweets are fetched from last to first so reverse the order
+	reverseSlice(tweets)
+
+	return &thread{tweets}, nil
+}
+
+func (ts *threadSaver) tweet(id string) (*tweet, error) {
+	return ts.client.tweetLookup(id, ts.opts)
+}
+
+func (ts *threadSaver) walkTweets(id string, limit int) ([]*tweet, error) {
+	tweets := []*tweet{}
+
+	nextID := id
 	conversationID := ""
 	authorID := ""
 
-	tweets := []Tweet{}
-	for i := 0; i < MaxThreadLen; i++ {
-		tweet, err := ts.getTweet(prevID)
+	for i := 0; i < limit; i++ {
+		tweet, err := ts.tweet(nextID)
 		if err != nil {
-			return Thread{}, err
-		}
-		tweets = append(tweets, tweet)
-
-		if tweet.RepliedToID == "" {
-			break
+			return nil, err
 		}
 
-		if conversationID == "" {
+		// Save the conversationID and authorID
+		if i == 0 {
 			conversationID = tweet.ConversationID
-		}
-		if authorID == "" {
 			authorID = tweet.AuthorID
 		}
+
+		// A change in conversationID or authorID indicates the end of the current thread
 		if tweet.ConversationID != conversationID || tweet.AuthorID != authorID {
-			// TODO: log...
-			break
+			return tweets, nil
 		}
 
-		prevID = tweet.RepliedToID
-	}
+		tweets = append(tweets, tweet)
 
-	// Reverse the order
-	i, j := 0, len(tweets)-1
-	for i < j {
-		tweets[i], tweets[j] = tweets[j], tweets[i]
-		i++
-		j--
-	}
-
-	return Thread{
-		Tweets: tweets,
-	}, nil
-}
-
-func (ts *ThreadSaver) getTweet(tweetID string) (Tweet, error) {
-	tweetResponse, err := ts.client.TweetLookup(context.Background(), []string{tweetID}, ts.opts)
-	if err != nil {
-		return Tweet{}, fmt.Errorf("tweet lookup error: %v", err)
-	}
-
-	tweetDictionary, ok := tweetResponse.Raw.TweetDictionaries()[tweetID]
-	if !ok {
-		return Tweet{}, fmt.Errorf("tweet lookup error: response does not include tweet with ID %s", tweetID)
-	}
-
-	return ts.parseTweet(tweetDictionary)
-}
-
-func (ts *ThreadSaver) parseTweet(raw *twitter.TweetDictionary) (Tweet, error) {
-	repliedToID := ""
-	for _, ref := range raw.Tweet.ReferencedTweets {
-		if ref.Type == "replied_to" {
-			repliedToID = ref.ID
-			break
+		switch len(tweet.RepliedToIDs) {
+		// Next ID for lookup
+		case 1:
+			nextID = tweet.RepliedToIDs[0]
+		// Top of thread has been reached
+		case 0:
+			return tweets, nil
+		// Error on multiple replied_to IDs
+		default:
+			return nil, fmt.Errorf("cannot follow tweet %s with multiple replied_to IDs", tweet.ID)
 		}
 	}
 
-	return Tweet{
-		ID:             raw.Tweet.ID,
-		ConversationID: raw.Tweet.ConversationID,
-		URL:            "", // TODO
-		Text:           raw.Tweet.Text,
-		CreatedAt:      raw.Tweet.CreatedAt,
-		AuthorID:       raw.Tweet.AuthorID,
-		AuthorName:     raw.Author.Name,
-		AuthorHandle:   raw.Author.UserName,
-		RepliedToID:    repliedToID,
-	}, nil
+	log.Printf("exceeded maximum [%d] number of tweets to fetch", limit)
+	return tweets, nil
 }
 
-type Thread struct {
-	Tweets []Tweet
-}
-
-func (t Thread) Len() int {
-	return len(t.Tweets)
-}
-
-func (t Thread) String() string {
-	tweetStrs := []string{}
-	threadLen := t.Len()
-	for i, tweet := range t.Tweets {
-		tweetStr := fmt.Sprintf("[%d/%d] %s", i+1, threadLen, tweet.Text)
-		tweetStrs = append(tweetStrs, tweetStr)
+func reverseSlice[T any](s []T) {
+	first, last := 0, len(s)-1
+	for first < last {
+		s[first], s[last] = s[last], s[first]
+		first++
+		last--
 	}
-	return strings.Join(tweetStrs, "\n---\n")
-}
-
-type Tweet struct {
-	ID             string `json:"id"`
-	ConversationID string `json:"conversation_id"`
-	URL            string `json:"url"`
-	Text           string `json:"text"`
-	CreatedAt      string `json:"created_at"`
-	AuthorID       string `json:"author_id"`
-	AuthorName     string `json:"author_name"`
-	AuthorHandle   string `json:"author_handle"`
-	RepliedToID    string `json:"replied_to_id"`
-	// Attachments  []Attachment // TODO
-}
-
-// func (t *Tweet) String() string {
-// 	b, _ := json.MarshalIndent(t, "", "\t")
-// 	return string(b)
-// }
-
-// type Attachment struct {
-// 	MediaKey string
-// 	Type     string
-// 	URL      string
-// }
-
-type authorize struct {
-	Token string
-}
-
-func (a authorize) Add(req *http.Request) {
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.Token))
 }
 
 func main() {
-	token := flag.String("token", "", "twitter API bearer token")
+	token := flag.String("token", "", "twitter API bearer token") // TODO: read from env
 	id := flag.String("id", "", "id of the last tweet in a single-author thread")
 	flag.Parse()
 
-	ts := NewThreadSaver(*token, twitter.TweetLookupOpts{
+	ts := newThreadSaver(*token, twitter.TweetLookupOpts{
 		Expansions: []twitter.Expansion{
 			twitter.ExpansionEntitiesMentionsUserName,
 			twitter.ExpansionAuthorID,
@@ -185,9 +115,10 @@ func main() {
 		},
 	})
 
-	thread, err := ts.GetThread(*id)
+	thread, err := ts.thread(*id)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Println(thread)
 }
