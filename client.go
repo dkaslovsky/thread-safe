@@ -9,7 +9,7 @@ import (
 )
 
 type Client interface {
-	tweetLookup(id string, opts twitter.TweetLookupOpts) (*tweet, error)
+	tweetLookup(id string) (*tweet, error)
 }
 
 func newClient(token string) Client {
@@ -27,8 +27,8 @@ type client struct {
 	*twitter.Client
 }
 
-func (c *client) tweetLookup(tweetID string, opts twitter.TweetLookupOpts) (*tweet, error) {
-	tweetResponse, err := c.TweetLookup(context.Background(), []string{tweetID}, opts)
+func (c *client) tweetLookup(tweetID string) (*tweet, error) {
+	tweetResponse, err := c.TweetLookup(context.Background(), []string{tweetID}, lookupOpts)
 	if err != nil {
 		return nil, fmt.Errorf("tweet lookup error: %v", err)
 	}
@@ -39,6 +39,25 @@ func (c *client) tweetLookup(tweetID string, opts twitter.TweetLookupOpts) (*twe
 	}
 
 	return parseTweet(tweetDictionary)
+}
+
+var lookupOpts = twitter.TweetLookupOpts{
+	Expansions: []twitter.Expansion{
+		twitter.ExpansionEntitiesMentionsUserName,
+		twitter.ExpansionAuthorID,
+		twitter.ExpansionAttachmentsMediaKeys,
+	},
+	MediaFields: []twitter.MediaField{
+		twitter.MediaFieldMediaKey,
+		twitter.MediaFieldURL,
+		twitter.MediaFieldType,
+		twitter.MediaFieldPreviewImageURL,
+	},
+	TweetFields: []twitter.TweetField{
+		twitter.TweetFieldCreatedAt,
+		twitter.TweetFieldConversationID,
+		twitter.TweetFieldReferencedTweets,
+	},
 }
 
 type authorize struct {

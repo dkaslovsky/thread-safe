@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-
-	"github.com/g8rswimmer/go-twitter/v2"
 )
 
 // maxThreadLen is the maximum number of tweets allowed to be fetched for constructing a thread
@@ -13,13 +11,11 @@ const maxThreadLen = 100
 
 type threadSaver struct {
 	client Client
-	opts   twitter.TweetLookupOpts
 }
 
-func newThreadSaver(token string, opts twitter.TweetLookupOpts) *threadSaver {
+func newThreadSaver(token string) *threadSaver {
 	return &threadSaver{
 		client: newClient(token),
-		opts:   opts,
 	}
 }
 
@@ -35,10 +31,6 @@ func (ts *threadSaver) thread(lastID string) (*thread, error) {
 	return &thread{tweets}, nil
 }
 
-func (ts *threadSaver) tweet(id string) (*tweet, error) {
-	return ts.client.tweetLookup(id, ts.opts)
-}
-
 func (ts *threadSaver) walkTweets(id string, limit int) ([]*tweet, error) {
 	tweets := []*tweet{}
 
@@ -47,7 +39,7 @@ func (ts *threadSaver) walkTweets(id string, limit int) ([]*tweet, error) {
 	authorID := ""
 
 	for i := 0; i < limit; i++ {
-		tweet, err := ts.tweet(nextID)
+		tweet, err := ts.client.tweetLookup(nextID)
 		if err != nil {
 			return nil, err
 		}
@@ -66,20 +58,17 @@ func (ts *threadSaver) walkTweets(id string, limit int) ([]*tweet, error) {
 		tweets = append(tweets, tweet)
 
 		switch len(tweet.RepliedToIDs) {
-		// Next ID for lookup
-		case 1:
+		case 1: // Next ID for lookup
 			nextID = tweet.RepliedToIDs[0]
-		// Top of thread has been reached
-		case 0:
+		case 0: // Top of thread has been reached
 			return tweets, nil
-		// Error on multiple replied_to IDs
-		default:
+		default: // Error on multiple replied_to IDs
 			return nil, fmt.Errorf("cannot follow tweet %s with multiple replied_to IDs", tweet.ID)
 		}
 	}
 
-	log.Printf("exceeded maximum [%d] number of tweets to fetch", limit)
-	return tweets, nil
+	// Limit reached
+	return nil, fmt.Errorf("exceeded maximum number of tweets to fetch [%d]", limit)
 }
 
 func reverseSlice[T any](s []T) {
@@ -96,24 +85,7 @@ func main() {
 	id := flag.String("id", "", "id of the last tweet in a single-author thread")
 	flag.Parse()
 
-	ts := newThreadSaver(*token, twitter.TweetLookupOpts{
-		Expansions: []twitter.Expansion{
-			twitter.ExpansionEntitiesMentionsUserName,
-			twitter.ExpansionAuthorID,
-			twitter.ExpansionAttachmentsMediaKeys,
-		},
-		MediaFields: []twitter.MediaField{
-			twitter.MediaFieldMediaKey,
-			twitter.MediaFieldURL,
-			twitter.MediaFieldType,
-			twitter.MediaFieldPreviewImageURL,
-		},
-		TweetFields: []twitter.TweetField{
-			twitter.TweetFieldCreatedAt,
-			twitter.TweetFieldConversationID,
-			twitter.TweetFieldReferencedTweets,
-		},
-	})
+	ts := newThreadSaver(*token)
 
 	thread, err := ts.thread(*id)
 	if err != nil {
