@@ -52,6 +52,7 @@ var lookupOpts = twitter.TweetLookupOpts{
 		twitter.MediaFieldURL,
 		twitter.MediaFieldType,
 		twitter.MediaFieldPreviewImageURL,
+		twitter.MediaFieldVariants,
 	},
 	TweetFields: []twitter.TweetField{
 		twitter.TweetFieldCreatedAt,

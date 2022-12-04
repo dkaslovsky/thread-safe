@@ -6,17 +6,21 @@ import (
 )
 
 type thread struct {
-	tweets []*tweet
+	items []*tweet
 }
 
-func (t *thread) Len() int {
-	return len(t.tweets)
+func (t *thread) tweets() []*tweet {
+	return t.items
+}
+
+func (t *thread) len() int {
+	return len(t.items)
 }
 
 func (t *thread) String() string {
 	tweetStrs := []string{}
-	threadLen := t.Len()
-	for i, tweet := range t.tweets {
+	threadLen := t.len()
+	for i, tweet := range t.tweets() {
 		tweetStr := fmt.Sprintf("[%d/%d] %s", i+1, threadLen, tweet.Text)
 		tweetStrs = append(tweetStrs, tweetStr)
 	}
