@@ -20,15 +20,15 @@ func (t *thread) len() int {
 	return len(t.items)
 }
 
-func (t *thread) String() string {
-	tweetStrs := []string{t.header()}
-	threadLen := t.len()
-	for i, tweet := range t.tweets() {
-		tweetStr := fmt.Sprintf("[%d/%d] %s", i+1, threadLen, tweet.Text)
-		tweetStrs = append(tweetStrs, tweetStr)
-	}
-	return strings.Join(tweetStrs, "\n---\n")
-}
+// func (t *thread) String() string {
+// 	tweetStrs := []string{t.header()}
+// 	threadLen := t.len()
+// 	for i, tweet := range t.tweets() {
+// 		tweetStr := fmt.Sprintf("[%d/%d] %s", i+1, threadLen, tweet.Text)
+// 		tweetStrs = append(tweetStrs, tweetStr)
+// 	}
+// 	return strings.Join(tweetStrs, "\n---\n")
+// }
 
 func (t *thread) header() string {
 	if t.len() == 0 {
@@ -44,16 +44,6 @@ func (t *thread) header() string {
 	return strings.Join(headerStrs, "\n")
 }
 
-func (t *thread) toFile(path string) error {
-	b, err := json.Marshal(t.items)
-	if err != nil {
-		return err
-	}
-	filePath := filepath.Join(path, "thread.json")
-	fmt.Printf("file path = %s\n", filePath)
-	return os.WriteFile(filePath, b, 0o755)
-}
-
 func fromFile(path string) (*thread, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -62,4 +52,25 @@ func fromFile(path string) (*thread, error) {
 
 	t := &thread{}
 	return t, json.Unmarshal(b, &(t.items))
+}
+
+func (t *thread) toFile(path string) error {
+	b, err := json.Marshal(t.items)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(path, "thread.json"), b, 0o755)
+}
+
+func (t *thread) saveAttachments(path string) error {
+	for _, tweet := range t.tweets() {
+		for aNum, attachment := range tweet.Attachments {
+			name := filepath.Join(path, fmt.Sprintf("tweet=%s_attachment=%d", tweet.ID, aNum+1))
+			err := attachment.Download(name)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

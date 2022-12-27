@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/g8rswimmer/go-twitter/v2"
 )
@@ -76,7 +77,7 @@ type Attachment struct {
 	URL      string `json:"url"`
 }
 
-func (a Attachment) Download(fileName string) error {
+func (a Attachment) Download(path string) error {
 	// TODO: sanitize or check url
 	resp, err := http.Get(a.URL)
 	if err != nil {
@@ -90,8 +91,8 @@ func (a Attachment) Download(fileName string) error {
 		return fmt.Errorf("Download of [%s] failed with status code: %d", a.URL, resp.StatusCode)
 	}
 
-	// TODO: sanitize or check fileName
-	f, ferr := os.Create(fileName)
+	// TODO: sanitize or check path
+	f, ferr := os.Create(path + filepath.Ext(a.URL))
 	if ferr != nil {
 		return ferr
 	}

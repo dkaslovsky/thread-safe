@@ -89,7 +89,7 @@ func main() {
 	id := flag.String("id", "", "id of the last tweet in a single-author thread") // TODO: accept id or url
 	name := flag.String("name", "", "name of thread")                             // TODO: should be arg
 	writePath := flag.String("path", "", "path to write thread to file")
-	// attachments := flag.Bool("attachments", false, "download tweet attachments")
+	attachments := flag.Bool("attachments", false, "download tweet attachments")
 
 	devMode := flag.Bool("dev", false, "read pre-saved json file ./test.json") // TODO: remove
 	flag.Parse()
@@ -125,6 +125,18 @@ func main() {
 		if werr != nil {
 			log.Fatal(werr)
 		}
+
+		if *attachments {
+			aPath := filepath.Join(path, "attachments")
+			err := os.MkdirAll(aPath, 0o755)
+			if err != nil {
+				log.Fatal(err)
+			}
+			serr := th.saveAttachments(aPath)
+			if serr != nil {
+				log.Fatal(serr)
+			}
+		}
 	}
 
 	// Dump template to console for now
@@ -144,7 +156,9 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-	defer w.Close()
+	defer func() {
+		_ = w.Close()
+	}()
 
 	terr := tmpl.Execute(w, NewTemplateThread(th, *name))
 	if terr != nil {
