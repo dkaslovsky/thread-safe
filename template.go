@@ -10,9 +10,10 @@ var htmlTemplate = `
 <div class="text"><pre>{{.Header}}</pre></div>
 <ul>
     {{range .Tweets}}
-		<li>{{.Text}}</li>
+		<h3>{{.Text}}</h3>
+		</br></br>
 		{{range .Attachments}}
-			<li>{{.HTML}}</li>
+			{{.HTML}}
     	{{end}}
     {{end}}
 </ul>
@@ -57,7 +58,7 @@ func NewTemplateThread(t *thread, name string) (TemplateThread, error) {
 			}
 
 			attachments = append(attachments, TemplateAttachment{
-				HTML: fmt.Sprintf(html, name),
+				HTML: fmt.Sprintf(html+"</br></br>", name),
 			})
 		}
 		tt := TemplateTweet{
