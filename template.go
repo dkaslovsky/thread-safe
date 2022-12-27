@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 )
 
 var htmlTemplate = `
@@ -11,7 +12,7 @@ var htmlTemplate = `
     {{range .Tweets}}
 		<li>{{.Text}}</li>
 		{{range .Attachments}}
-			<li><img src=attachments/{{.Path}}></li>
+			<li>{{.HTML}}</li>
     	{{end}}
     {{end}}
 </ul>
@@ -29,7 +30,7 @@ type TemplateTweet struct {
 }
 
 type TemplateAttachment struct {
-	Path string
+	HTML string
 }
 
 func NewTemplateThread(t *thread, name string) (TemplateThread, error) {
@@ -42,8 +43,21 @@ func NewTemplateThread(t *thread, name string) (TemplateThread, error) {
 			if nerr != nil {
 				return TemplateThread{}, nerr
 			}
+
+			var html string
+			switch filepath.Ext(name) {
+			case ".jpg":
+				html = `<img width="320" height="auto" src=attachments/%s>`
+			case ".mp4":
+				html = `<video width="320" height="240" controls><source src=attachments/%s type="video/mp4"></video>`
+			}
+
+			if html == "" {
+				return TemplateThread{}, fmt.Errorf("unknown attachment type %s", filepath.Ext(name))
+			}
+
 			attachments = append(attachments, TemplateAttachment{
-				Path: name,
+				HTML: fmt.Sprintf(html, name),
 			})
 		}
 		tt := TemplateTweet{
