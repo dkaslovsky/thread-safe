@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,10 +36,30 @@ func (t *thread) header() string {
 	}
 	first := t.tweets()[0]
 	headerStrs := []string{
-		fmt.Sprintf("URL: \t\t\t%s", first.URL),
+		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
 		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),
 		fmt.Sprintf("Author Handle: \t\t%s", first.AuthorHandle),
 		fmt.Sprintf("Conversation ID: \t%s", first.ConversationID),
 	}
 	return strings.Join(headerStrs, "\n")
+}
+
+func (t *thread) toFile(path string) error {
+	b, err := json.Marshal(t.items)
+	if err != nil {
+		return err
+	}
+	filePath := filepath.Join(path, "thread.json")
+	fmt.Printf("file path = %s\n", filePath)
+	return os.WriteFile(filePath, b, 0o755)
+}
+
+func fromFile(path string) (*thread, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &thread{}
+	return t, json.Unmarshal(b, &(t.items))
 }

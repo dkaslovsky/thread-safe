@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"text/template"
 )
 
 // maxThreadLen is the maximum number of tweets allowed to be fetched for constructing a thread
@@ -81,16 +84,53 @@ func reverseSlice[T any](s []T) {
 }
 
 func main() {
-	token := flag.String("token", "", "twitter API bearer token") // TODO: read from env
-	id := flag.String("id", "", "id of the last tweet in a single-author thread")
+	token := flag.String("token", "", "twitter API bearer token")                 // TODO: read from env
+	id := flag.String("id", "", "id of the last tweet in a single-author thread") // TODO: accept id or url
+	name := flag.String("name", "", "name of thread")                             // TODO: should be arg
+	writePath := flag.String("path", "", "path to write thread to file")
+	devMode := flag.Bool("dev", false, "read pre-saved json file ./test.json") // TODO: remove
 	flag.Parse()
 
-	ts := newThreadSaver(*token)
+	if *name == "" {
+		log.Fatal("name is required")
+	}
 
-	thread, err := ts.thread(*id)
+	// Get thread
+	var th *thread
+	var err error
+
+	if *devMode {
+		th, err = fromFile("./test.json")
+	} else {
+		th, err = newThreadSaver(*token).thread(*id)
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(thread)
+	// Save thread as json file
+	if *writePath != "" {
+		// TODO: stat the path to ensure it exists
+		path := filepath.Join(*writePath, *name)
+		err := os.MkdirAll(path, 0o755)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("dir path = %s\n", path)
+		werr := th.toFile(path)
+		if werr != nil {
+			log.Fatal(werr)
+		}
+	}
+
+	// Dump template to console for now
+	tmpl, err := template.New("thread").Parse(htmlTemplate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	terr := tmpl.Execute(os.Stdout, NewTemplateThread(th, *name))
+	if terr != nil {
+		log.Fatal(terr)
+	}
 }
