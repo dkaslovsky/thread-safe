@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -88,12 +89,17 @@ func main() {
 	id := flag.String("id", "", "id of the last tweet in a single-author thread") // TODO: accept id or url
 	name := flag.String("name", "", "name of thread")                             // TODO: should be arg
 	writePath := flag.String("path", "", "path to write thread to file")
+	// attachments := flag.Bool("attachments", false, "download tweet attachments")
+
 	devMode := flag.Bool("dev", false, "read pre-saved json file ./test.json") // TODO: remove
 	flag.Parse()
 
 	if *name == "" {
 		log.Fatal("name is required")
 	}
+
+	// TODO: stat the path to ensure it exists
+	path := filepath.Join(*writePath, *name)
 
 	// Get thread
 	var th *thread
@@ -109,15 +115,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Save thread as json file
+	// Save thread to filesystem
 	if *writePath != "" {
-		// TODO: stat the path to ensure it exists
-		path := filepath.Join(*writePath, *name)
 		err := os.MkdirAll(path, 0o755)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("dir path = %s\n", path)
 		werr := th.toFile(path)
 		if werr != nil {
 			log.Fatal(werr)
@@ -129,7 +132,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	terr := tmpl.Execute(os.Stdout, NewTemplateThread(th, *name))
+
+	var w io.WriteCloser
+	if *writePath == "" {
+		w = os.Stdout
+	} else {
+		var err error
+		htmlPath := filepath.Join(path, "thread.html")
+		w, err = os.Create(htmlPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	defer w.Close()
+
+	terr := tmpl.Execute(w, NewTemplateThread(th, *name))
 	if terr != nil {
 		log.Fatal(terr)
 	}
