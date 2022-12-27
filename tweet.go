@@ -71,6 +71,14 @@ func parseTweet(raw *twitter.TweetDictionary) (*tweet, error) {
 	}, nil
 }
 
+func (t *tweet) AttachmentName(idx int) (string, error) {
+	if idx >= len(t.Attachments) {
+		return "", fmt.Errorf("invalid attachment index %d for tweet with %d attachments", idx, len(t.Attachments))
+	}
+	a := t.Attachments[idx]
+	return fmt.Sprintf("tweet=%s-media_key=%s%s", t.ID, a.MediaKey, filepath.Ext(a.URL)), nil
+}
+
 type Attachment struct {
 	MediaKey string `json:"media_key"`
 	Type     string `json:"type"`
@@ -92,7 +100,7 @@ func (a Attachment) Download(path string) error {
 	}
 
 	// TODO: sanitize or check path
-	f, ferr := os.Create(path + filepath.Ext(a.URL))
+	f, ferr := os.Create(path)
 	if ferr != nil {
 		return ferr
 	}

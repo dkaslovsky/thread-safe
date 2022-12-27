@@ -64,9 +64,12 @@ func (t *thread) toFile(path string) error {
 
 func (t *thread) saveAttachments(path string) error {
 	for _, tweet := range t.tweets() {
-		for aNum, attachment := range tweet.Attachments {
-			name := filepath.Join(path, fmt.Sprintf("tweet=%s_attachment=%d", tweet.ID, aNum+1))
-			err := attachment.Download(name)
+		for i, attachment := range tweet.Attachments {
+			name, nerr := tweet.AttachmentName(i)
+			if nerr != nil {
+				return nerr
+			}
+			err := attachment.Download(filepath.Join(path, name))
 			if err != nil {
 				return err
 			}

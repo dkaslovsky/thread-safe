@@ -88,7 +88,8 @@ func main() {
 	token := flag.String("token", "", "twitter API bearer token")                 // TODO: read from env
 	id := flag.String("id", "", "id of the last tweet in a single-author thread") // TODO: accept id or url
 	name := flag.String("name", "", "name of thread")                             // TODO: should be arg
-	writePath := flag.String("path", "", "path to write thread to file")
+	pathIn := flag.String("path", "", "path to read/write thread")
+	write := flag.Bool("write", false, "write data")
 	attachments := flag.Bool("attachments", false, "download tweet attachments")
 
 	devMode := flag.Bool("dev", false, "read pre-saved json file ./test.json") // TODO: remove
@@ -99,14 +100,14 @@ func main() {
 	}
 
 	// TODO: stat the path to ensure it exists
-	path := filepath.Join(*writePath, *name)
+	path := filepath.Join(*pathIn, *name)
 
 	// Get thread
 	var th *thread
 	var err error
 
 	if *devMode {
-		th, err = fromFile("./test.json")
+		th, err = fromFile(filepath.Join(path, "thread.json"))
 	} else {
 		th, err = newThreadSaver(*token).thread(*id)
 	}
@@ -116,7 +117,7 @@ func main() {
 	}
 
 	// Save thread to filesystem
-	if *writePath != "" {
+	if *write {
 		err := os.MkdirAll(path, 0o755)
 		if err != nil {
 			log.Fatal(err)
@@ -146,7 +147,7 @@ func main() {
 	}
 
 	var w io.WriteCloser
-	if *writePath == "" {
+	if !*write {
 		w = os.Stdout
 	} else {
 		var err error
@@ -160,8 +161,12 @@ func main() {
 		_ = w.Close()
 	}()
 
-	terr := tmpl.Execute(w, NewTemplateThread(th, *name))
+	tmplThread, terr := NewTemplateThread(th, *name)
 	if terr != nil {
 		log.Fatal(terr)
+	}
+	exerr := tmpl.Execute(w, tmplThread)
+	if exerr != nil {
+		log.Fatal(exerr)
 	}
 }
