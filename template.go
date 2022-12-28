@@ -13,7 +13,14 @@ var htmlTemplate = `
 		<h3>{{.Text}}</h3>
 		</br></br>
 		{{range .Attachments}}
-			{{.HTML}}
+			{{if .IsImage}}
+				<img width="320" height="auto" src=attachments/{{.Path}}>
+				</br></br>
+			{{end}}
+			{{if .IsVideo}}
+				<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
+				</br></br>
+			{{end}}
     	{{end}}
     {{end}}
 </ul>
@@ -31,7 +38,16 @@ type TemplateTweet struct {
 }
 
 type TemplateAttachment struct {
-	HTML string
+	Path string
+	Ext  string
+}
+
+func (a TemplateAttachment) IsImage() bool {
+	return a.Ext == ".jpg"
+}
+
+func (a TemplateAttachment) IsVideo() bool {
+	return a.Ext == ".mp4"
 }
 
 func NewTemplateThread(t *thread, name string) (TemplateThread, error) {
@@ -40,32 +56,20 @@ func NewTemplateThread(t *thread, name string) (TemplateThread, error) {
 	for i, tweet := range t.tweets() {
 		attachments := []TemplateAttachment{}
 		for i := 0; i < len(tweet.Attachments); i++ {
-			name, nerr := tweet.AttachmentName(i)
-			if nerr != nil {
-				return TemplateThread{}, nerr
+			path, err := tweet.AttachmentName(i)
+			if err != nil {
+				return TemplateThread{}, err
 			}
-
-			var html string
-			switch filepath.Ext(name) {
-			case ".jpg":
-				html = `<img width="320" height="auto" src=attachments/%s>`
-			case ".mp4":
-				html = `<video width="320" height="240" controls><source src=attachments/%s type="video/mp4"></video>`
-			}
-
-			if html == "" {
-				return TemplateThread{}, fmt.Errorf("unknown attachment type %s", filepath.Ext(name))
-			}
-
 			attachments = append(attachments, TemplateAttachment{
-				HTML: fmt.Sprintf(html+"</br></br>", name),
+				Path: path,
+				Ext:  filepath.Ext(path),
 			})
 		}
-		tt := TemplateTweet{
+
+		tweets = append(tweets, TemplateTweet{
 			Text:        fmt.Sprintf("[%d/%d] %s", i+1, threadLen, tweet.Text),
 			Attachments: attachments,
-		}
-		tweets = append(tweets, tt)
+		})
 	}
 
 	return TemplateThread{
