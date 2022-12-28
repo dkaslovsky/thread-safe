@@ -1,4 +1,4 @@
-package main
+package twitter
 
 import (
 	"fmt"
@@ -10,9 +10,11 @@ import (
 	"github.com/g8rswimmer/go-twitter/v2"
 )
 
-// TODO: unexported fields for now
+const (
+	tweetReferencedTweetTypeRepliedTo = "replied_to"
+)
 
-type tweet struct {
+type Tweet struct {
 	ID             string       `json:"id"`
 	ConversationID string       `json:"conversation_id"`
 	URL            string       `json:"url"`
@@ -25,11 +27,7 @@ type tweet struct {
 	Attachments    []Attachment `json:"attachments"`
 }
 
-const tweetReferencedTweetTypeRepliedTo = "replied_to"
-
-func parseTweet(raw *twitter.TweetDictionary) (*tweet, error) {
-	tweetURL := fmt.Sprintf("https://twitter.com/%s/status/%s", raw.Author.UserName, raw.Tweet.ID)
-
+func ParseTweet(raw *twitter.TweetDictionary) (*Tweet, error) {
 	repliedToIDs := []string{}
 	for _, ref := range raw.Tweet.ReferencedTweets {
 		if ref.Type == tweetReferencedTweetTypeRepliedTo {
@@ -57,10 +55,10 @@ func parseTweet(raw *twitter.TweetDictionary) (*tweet, error) {
 		}
 	}
 
-	return &tweet{
+	return &Tweet{
 		ID:             raw.Tweet.ID,
 		ConversationID: raw.Tweet.ConversationID,
-		URL:            tweetURL,
+		URL:            fmt.Sprintf("https://twitter.com/%s/status/%s", raw.Author.UserName, raw.Tweet.ID),
 		Text:           raw.Tweet.Text,
 		CreatedAt:      raw.Tweet.CreatedAt,
 		AuthorID:       raw.Tweet.AuthorID,
@@ -71,18 +69,14 @@ func parseTweet(raw *twitter.TweetDictionary) (*tweet, error) {
 	}, nil
 }
 
-func (t *tweet) AttachmentName(idx int) (string, error) {
-	if idx >= len(t.Attachments) {
-		return "", fmt.Errorf("invalid attachment index %d for tweet with %d attachments", idx, len(t.Attachments))
-	}
-	a := t.Attachments[idx]
-	return fmt.Sprintf("tweet=%s-media_key=%s%s", t.ID, a.MediaKey, filepath.Ext(a.URL)), nil
-}
-
 type Attachment struct {
 	MediaKey string `json:"media_key"`
 	Type     string `json:"type"`
 	URL      string `json:"url"`
+}
+
+func (a Attachment) Name(tweetID string) string {
+	return fmt.Sprintf("tweet=%s-media_key=%s%s", tweetID, a.MediaKey, filepath.Ext(a.URL))
 }
 
 func (a Attachment) Download(path string) error {
