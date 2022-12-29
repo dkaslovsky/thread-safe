@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/dkaslovsky/thread-safe/pkg/twitter"
 )
@@ -49,6 +48,10 @@ func NewThreadFromFile(path string) (*Thread, error) {
 	return th, json.Unmarshal(b, &th)
 }
 
+func (th *Thread) Len() int {
+	return len(th.Tweets)
+}
+
 func (th *Thread) ToJSON(path string) error {
 	err := os.MkdirAll(path, 0o755)
 	if err != nil {
@@ -80,24 +83,6 @@ func (th *Thread) DownloadAttachments(path string) error {
 	}
 
 	return nil
-}
-
-func (th *Thread) Len() int {
-	return len(th.Tweets)
-}
-
-func (th *Thread) Header() string {
-	if th.Len() == 0 {
-		return ""
-	}
-	first := th.Tweets[0]
-	headerStrs := []string{
-		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
-		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),
-		fmt.Sprintf("Author Handle: \t\t%s", first.AuthorHandle),
-		fmt.Sprintf("Conversation ID: \t%s", first.ConversationID),
-	}
-	return strings.Join(headerStrs, "\n")
 }
 
 func walkTweets(client twitter.Client, id string, limit int) ([]*twitter.Tweet, error) {

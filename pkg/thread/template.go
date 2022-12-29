@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -55,6 +56,20 @@ func (th *Thread) ToHTML(path string) error {
 	}()
 
 	return tmpl.Execute(f, tmplThread)
+}
+
+func (th *Thread) Header() string {
+	if th.Len() == 0 {
+		return ""
+	}
+	first := th.Tweets[0]
+	headerStrs := []string{
+		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
+		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),
+		fmt.Sprintf("Author Handle: \t\t%s", first.AuthorHandle),
+		fmt.Sprintf("Conversation ID: \t%s", first.ConversationID),
+	}
+	return strings.Join(headerStrs, "\n")
 }
 
 func NewTemplateThread(th *Thread) (TemplateThread, error) {
