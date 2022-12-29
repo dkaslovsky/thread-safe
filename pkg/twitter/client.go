@@ -21,8 +21,8 @@ func (a authorize) Add(req *http.Request) {
 }
 
 func NewTwitterClient(token string) Client {
-	return &client{
-		&tw.Client{
+	return &twitterClient{
+		c: &tw.Client{
 			Authorizer: authorize{
 				Token: token,
 			},
@@ -32,12 +32,12 @@ func NewTwitterClient(token string) Client {
 	}
 }
 
-type client struct {
-	*tw.Client
+type twitterClient struct {
+	c *tw.Client
 }
 
-func (c *client) LookupTweet(tweetID string) (*Tweet, error) {
-	tweetResponse, err := c.TweetLookup(context.Background(), []string{tweetID}, tw.TweetLookupOpts{
+func (tc *twitterClient) LookupTweet(tweetID string) (*Tweet, error) {
+	tweetResponse, err := tc.c.TweetLookup(context.Background(), []string{tweetID}, tw.TweetLookupOpts{
 		Expansions: []tw.Expansion{
 			tw.ExpansionEntitiesMentionsUserName,
 			tw.ExpansionAuthorID,

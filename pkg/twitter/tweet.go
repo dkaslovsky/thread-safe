@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/g8rswimmer/go-twitter/v2"
+	tw "github.com/g8rswimmer/go-twitter/v2"
 )
 
 const (
@@ -27,7 +27,7 @@ type Tweet struct {
 	Attachments    []Attachment `json:"attachments"`
 }
 
-func ParseTweet(raw *twitter.TweetDictionary) (*Tweet, error) {
+func ParseTweet(raw *tw.TweetDictionary) (*Tweet, error) {
 	repliedToIDs := []string{}
 	for _, ref := range raw.Tweet.ReferencedTweets {
 		if ref.Type == tweetReferencedTweetTypeRepliedTo {
@@ -94,7 +94,7 @@ func (a Attachment) Download(path string) error {
 	}
 
 	// TODO: sanitize or check path
-	f, fErr := os.Create(path)
+	f, fErr := os.Create(filepath.Clean(path))
 	if fErr != nil {
 		return fErr
 	}
