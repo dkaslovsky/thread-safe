@@ -16,10 +16,11 @@ const (
 )
 
 type Thread struct {
-	tweets []*twitter.Tweet
+	Name   string           `json:"name"`
+	Tweets []*twitter.Tweet `json:"tweets"`
 }
 
-func NewThread(client twitter.Client, lastID string) (*Thread, error) {
+func NewThread(client twitter.Client, name string, lastID string) (*Thread, error) {
 	tweets, err := walkTweets(client, lastID, maxThreadLen)
 	if err != nil {
 		return nil, err
@@ -28,7 +29,10 @@ func NewThread(client twitter.Client, lastID string) (*Thread, error) {
 	// Tweets are fetched from last to first so reverse the order
 	reverseSlice(tweets)
 
-	return &Thread{tweets}, nil
+	return &Thread{
+		Name:   name,
+		Tweets: tweets,
+	}, nil
 }
 
 func NewThreadFromFile(path string) (*Thread, error) {
@@ -37,8 +41,8 @@ func NewThreadFromFile(path string) (*Thread, error) {
 		return nil, err
 	}
 
-	t := &Thread{}
-	return t, json.Unmarshal(b, &(t.tweets))
+	th := &Thread{}
+	return th, json.Unmarshal(b, &th)
 }
 
 func (t *Thread) ToFile(path string) error {
@@ -47,7 +51,7 @@ func (t *Thread) ToFile(path string) error {
 		return err
 	}
 
-	b, berr := json.Marshal(t.tweets)
+	b, berr := json.Marshal(t)
 	if berr != nil {
 		return berr
 	}
@@ -61,7 +65,7 @@ func (t *Thread) DownloadAttachments(path string) error {
 		return err
 	}
 
-	for _, tweet := range t.Tweets() {
+	for _, tweet := range t.Tweets {
 		for _, attachment := range tweet.Attachments {
 			err := attachment.Download(filepath.Join(path, attachment.Name(tweet.ID)))
 			if err != nil {
@@ -73,19 +77,15 @@ func (t *Thread) DownloadAttachments(path string) error {
 	return nil
 }
 
-func (t *Thread) Tweets() []*twitter.Tweet {
-	return t.tweets
-}
-
 func (t *Thread) Len() int {
-	return len(t.tweets)
+	return len(t.Tweets)
 }
 
 func (t *Thread) Header() string {
 	if t.Len() == 0 {
 		return ""
 	}
-	first := t.Tweets()[0]
+	first := t.Tweets[0]
 	headerStrs := []string{
 		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
 		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),

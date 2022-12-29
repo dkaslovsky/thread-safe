@@ -31,7 +31,7 @@ func Run(args []string) error {
 
 func run(opts *cmdOpts) error {
 	client := twitter.NewTwitterClient(opts.token)
-	th, err := thread.NewThread(client, opts.tweetID)
+	th, err := thread.NewThread(client, opts.name, opts.tweetID)
 	if err != nil {
 		return err // TODO: wrap or provide user-friendly message?
 	}
