@@ -94,17 +94,17 @@ func (a Attachment) Download(path string) error {
 	}
 
 	// TODO: sanitize or check path
-	f, ferr := os.Create(path)
-	if ferr != nil {
-		return ferr
+	f, fErr := os.Create(path)
+	if fErr != nil {
+		return fErr
 	}
 	defer func() {
 		_ = f.Close()
 	}()
 
-	_, cerr := io.Copy(f, io.LimitReader(resp.Body, 1024*1024))
-	if cerr != nil {
-		return err
+	_, cErr := io.Copy(f, io.LimitReader(resp.Body, 1024*1024))
+	if cErr != nil {
+		return cErr
 	}
 
 	return nil

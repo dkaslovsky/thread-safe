@@ -11,6 +11,8 @@ import (
 // TODO: CSS from file
 // TODO: BYO Template from file?
 
+const htmlFileName = "thread.html"
+
 const htmlTemplate = `
 <h1>{{.Name}}</h1>
 <div class="text"><pre>{{.Header}}</pre></div>
@@ -38,15 +40,15 @@ func (th *Thread) ToHTML(path string) error {
 		return err
 	}
 
-	tmplThread, terr := NewTemplateThread(th)
-	if terr != nil {
-		log.Fatal(terr)
+	tmplThread, tErr := NewTemplateThread(th)
+	if tErr != nil {
+		log.Fatal(tErr)
 	}
 
-	htmlPath := filepath.Join(path, "thread.html")
-	f, ferr := os.Create(htmlPath)
-	if ferr != nil {
-		return ferr
+	htmlPath := filepath.Join(path, htmlFileName)
+	f, fErr := os.Create(htmlPath)
+	if fErr != nil {
+		return fErr
 	}
 	defer func() {
 		_ = f.Close()

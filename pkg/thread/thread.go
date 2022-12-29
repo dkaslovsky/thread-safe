@@ -13,6 +13,9 @@ import (
 const (
 	// maxThreadLen is the maximum number of tweets allowed to be fetched for constructing a thread
 	maxThreadLen = 100
+
+	attachmentsDirName = "attachments"
+	jsonFileName       = "thread.json"
 )
 
 type Thread struct {
@@ -36,7 +39,7 @@ func NewThread(client twitter.Client, name string, lastID string) (*Thread, erro
 }
 
 func NewThreadFromFile(path string) (*Thread, error) {
-	filePath := filepath.Join(path, "thread.json")
+	filePath := filepath.Join(path, jsonFileName)
 	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -52,16 +55,16 @@ func (th *Thread) ToJSON(path string) error {
 		return err
 	}
 
-	b, berr := json.Marshal(th)
-	if berr != nil {
-		return berr
+	b, bErr := json.Marshal(th)
+	if bErr != nil {
+		return bErr
 	}
 
-	return os.WriteFile(filepath.Join(path, "thread.json"), b, 0o755)
+	return os.WriteFile(filepath.Join(path, jsonFileName), b, 0o755)
 }
 
 func (th *Thread) DownloadAttachments(path string) error {
-	attachmentPath := filepath.Join(path, "attachments")
+	attachmentPath := filepath.Join(path, attachmentsDirName)
 	err := os.MkdirAll(attachmentPath, 0o755)
 	if err != nil {
 		return err

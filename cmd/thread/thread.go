@@ -38,9 +38,9 @@ func run(opts *cmdOpts) error {
 
 	threadDir := filepath.Join(opts.path, opts.name)
 
-	ferr := th.ToJSON(threadDir)
-	if ferr != nil {
-		return ferr // TODO: wrap or provide user-friendly message?
+	fErr := th.ToJSON(threadDir)
+	if fErr != nil {
+		return fErr // TODO: wrap or provide user-friendly message?
 	}
 
 	if !opts.noAttachments {
@@ -50,9 +50,9 @@ func run(opts *cmdOpts) error {
 		}
 	}
 
-	terr := th.ToHTML(threadDir)
-	if terr != nil {
-		return terr // TODO: wrap or provide user-friendly message?
+	tErr := th.ToHTML(threadDir)
+	if tErr != nil {
+		return tErr // TODO: wrap or provide user-friendly message?
 	}
 
 	return nil

@@ -36,9 +36,9 @@ func run(opts *cmdOpts) error {
 		return err // TODO: wrap or provide user-friendly message?
 	}
 
-	terr := th.ToHTML(threadDir)
-	if terr != nil {
-		return terr // TODO: wrap or provide user-friendly message?
+	tErr := th.ToHTML(threadDir)
+	if tErr != nil {
+		return tErr // TODO: wrap or provide user-friendly message?
 	}
 
 	return nil
