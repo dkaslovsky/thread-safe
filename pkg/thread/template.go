@@ -46,7 +46,7 @@ func (th *Thread) ToHTML(path string) error {
 		log.Fatal(tErr)
 	}
 
-	htmlPath := filepath.Join(path, htmlFileName)
+	htmlPath := filepath.Clean(filepath.Join(path, htmlFileName))
 	f, fErr := os.Create(htmlPath)
 	if fErr != nil {
 		return fErr

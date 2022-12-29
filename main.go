@@ -7,8 +7,6 @@ import (
 	"github.com/dkaslovsky/thread-safe/cmd"
 )
 
-// TODO: name vs path everywhere
-
 const (
 	name    = "thread-safe"
 	version = "0.0.1" // hardcode version for now

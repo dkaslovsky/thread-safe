@@ -38,7 +38,7 @@ func NewThread(client twitter.Client, name string, lastID string) (*Thread, erro
 }
 
 func NewThreadFromFile(path string) (*Thread, error) {
-	filePath := filepath.Join(path, jsonFileName)
+	filePath := filepath.Clean(filepath.Join(path, jsonFileName))
 	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (th *Thread) Len() int {
 }
 
 func (th *Thread) ToJSON(path string) error {
-	err := os.MkdirAll(path, 0o755)
+	err := os.MkdirAll(filepath.Clean(path), 0o750)
 	if err != nil {
 		return err
 	}
@@ -63,12 +63,13 @@ func (th *Thread) ToJSON(path string) error {
 		return bErr
 	}
 
-	return os.WriteFile(filepath.Join(path, jsonFileName), b, 0o755)
+	jsonPath := filepath.Clean(filepath.Join(path, jsonFileName))
+	return os.WriteFile(jsonPath, b, 0o600)
 }
 
 func (th *Thread) DownloadAttachments(path string) error {
 	attachmentPath := filepath.Join(path, attachmentsDirName)
-	err := os.MkdirAll(attachmentPath, 0o755)
+	err := os.MkdirAll(attachmentPath, 0o750)
 	if err != nil {
 		return err
 	}
