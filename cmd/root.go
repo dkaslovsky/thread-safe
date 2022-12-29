@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dkaslovsky/thread-safe/cmd/render"
 	"github.com/dkaslovsky/thread-safe/cmd/thread"
 )
 
@@ -16,15 +17,14 @@ func Run(name string, version string, cliArgs []string) error {
 	cmd, args := cliArgs[1], cliArgs[2:]
 
 	switch cmd {
-	case "all":
-		// run all three commands
-		return fmt.Errorf("not yet implemented")
 	case "thread":
 		return thread.Run(args)
-	case "-help", "-h":
+	case "rerender":
+		return render.Run(args)
+	case "--help", "-help", "-h":
 		// TODO: printUsage(name)
 		return nil
-	case "-version", "-v":
+	case "--version", "-version", "-v":
 		// TODO: printVersion(name, version)
 		return nil
 	default:

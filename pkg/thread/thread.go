@@ -36,7 +36,8 @@ func NewThread(client twitter.Client, name string, lastID string) (*Thread, erro
 }
 
 func NewThreadFromFile(path string) (*Thread, error) {
-	b, err := os.ReadFile(path)
+	filePath := filepath.Join(path, "thread.json")
+	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
