@@ -3,7 +3,6 @@ package thread
 import (
 	"errors"
 	"flag"
-	"path/filepath"
 
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
@@ -36,7 +35,7 @@ func run(opts *cmdOpts) error {
 		return err // TODO: wrap or provide user-friendly message?
 	}
 
-	threadDir := filepath.Join(opts.path, opts.name)
+	threadDir := thread.Dir(opts.path, opts.name)
 
 	fErr := th.ToJSON(threadDir)
 	if fErr != nil {

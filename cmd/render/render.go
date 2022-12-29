@@ -3,7 +3,6 @@ package render
 import (
 	"errors"
 	"flag"
-	"path/filepath"
 
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
@@ -29,7 +28,7 @@ func Run(args []string) error {
 }
 
 func run(opts *cmdOpts) error {
-	threadDir := filepath.Join(opts.path, opts.name)
+	threadDir := thread.Dir(opts.path, opts.name)
 
 	th, err := thread.NewThreadFromFile(threadDir)
 	if err != nil {

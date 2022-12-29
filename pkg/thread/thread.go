@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/dkaslovsky/thread-safe/pkg/twitter"
 )
@@ -76,7 +77,8 @@ func (th *Thread) DownloadAttachments(path string) error {
 
 	for _, tweet := range th.Tweets {
 		for _, attachment := range tweet.Attachments {
-			err := attachment.Download(filepath.Join(attachmentPath, attachment.Name(tweet.ID)))
+			attachmentName := attachment.Name(tweet.ID)
+			err := attachment.Download(filepath.Clean(filepath.Join(attachmentPath, attachmentName)))
 			if err != nil {
 				return err
 			}
@@ -124,6 +126,10 @@ func walkTweets(client twitter.Client, id string, limit int) ([]*twitter.Tweet, 
 
 	// Limit reached
 	return nil, fmt.Errorf("exceeded maximum number of tweets to fetch [%d]", limit)
+}
+
+func Dir(topLevelPath string, threadName string) string {
+	return filepath.Join(topLevelPath, strings.Replace(threadName, " ", "_", -1))
 }
 
 func reverseSlice[T any](s []T) {

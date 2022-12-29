@@ -93,7 +93,6 @@ func (a Attachment) Download(path string) error {
 		return fmt.Errorf("Download of [%s] failed with status code: %d", a.URL, resp.StatusCode)
 	}
 
-	// TODO: sanitize or check path
 	f, fErr := os.Create(filepath.Clean(path))
 	if fErr != nil {
 		return fErr

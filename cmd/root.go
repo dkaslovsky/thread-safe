@@ -19,7 +19,7 @@ func Run(name string, version string, cliArgs []string) error {
 	switch cmd {
 	case "thread":
 		return thread.Run(args)
-	case "rerender":
+	case "render":
 		return render.Run(args)
 	case "--help", "-help", "-h":
 		// TODO: printUsage(name)
