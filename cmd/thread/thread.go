@@ -38,16 +38,19 @@ func run(opts *cmdOpts) error {
 
 	threadDir := filepath.Join(opts.path, opts.name)
 
-	ferr := th.ToFile(threadDir)
+	ferr := th.ToJSON(threadDir)
 	if ferr != nil {
 		return ferr // TODO: wrap or provide user-friendly message?
 	}
 
-	if opts.noAttachments {
-		return nil
+	if !opts.noAttachments {
+		err := th.DownloadAttachments(threadDir)
+		if err != nil {
+			return err // TODO: wrap or provide user-friendly message?
+		}
 	}
 
-	terr := th.DownloadAttachments(filepath.Join(threadDir, "attachments"))
+	terr := th.ToHTML(threadDir)
 	if terr != nil {
 		return terr // TODO: wrap or provide user-friendly message?
 	}

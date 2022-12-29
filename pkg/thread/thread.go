@@ -45,13 +45,13 @@ func NewThreadFromFile(path string) (*Thread, error) {
 	return th, json.Unmarshal(b, &th)
 }
 
-func (t *Thread) ToFile(path string) error {
+func (th *Thread) ToJSON(path string) error {
 	err := os.MkdirAll(path, 0o755)
 	if err != nil {
 		return err
 	}
 
-	b, berr := json.Marshal(t)
+	b, berr := json.Marshal(th)
 	if berr != nil {
 		return berr
 	}
@@ -59,15 +59,16 @@ func (t *Thread) ToFile(path string) error {
 	return os.WriteFile(filepath.Join(path, "thread.json"), b, 0o755)
 }
 
-func (t *Thread) DownloadAttachments(path string) error {
-	err := os.MkdirAll(path, 0o755)
+func (th *Thread) DownloadAttachments(path string) error {
+	attachmentPath := filepath.Join(path, "attachments")
+	err := os.MkdirAll(attachmentPath, 0o755)
 	if err != nil {
 		return err
 	}
 
-	for _, tweet := range t.Tweets {
+	for _, tweet := range th.Tweets {
 		for _, attachment := range tweet.Attachments {
-			err := attachment.Download(filepath.Join(path, attachment.Name(tweet.ID)))
+			err := attachment.Download(filepath.Join(attachmentPath, attachment.Name(tweet.ID)))
 			if err != nil {
 				return err
 			}
@@ -77,15 +78,15 @@ func (t *Thread) DownloadAttachments(path string) error {
 	return nil
 }
 
-func (t *Thread) Len() int {
-	return len(t.Tweets)
+func (th *Thread) Len() int {
+	return len(th.Tweets)
 }
 
-func (t *Thread) Header() string {
-	if t.Len() == 0 {
+func (th *Thread) Header() string {
+	if th.Len() == 0 {
 		return ""
 	}
-	first := t.Tweets[0]
+	first := th.Tweets[0]
 	headerStrs := []string{
 		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
 		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),
