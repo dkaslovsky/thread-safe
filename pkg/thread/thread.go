@@ -46,14 +46,21 @@ func (t *Thread) ToFile(path string) error {
 	if err != nil {
 		return err
 	}
+
 	b, berr := json.Marshal(t.tweets)
 	if berr != nil {
 		return berr
 	}
+
 	return os.WriteFile(filepath.Join(path, "thread.json"), b, 0o755)
 }
 
 func (t *Thread) DownloadAttachments(path string) error {
+	err := os.MkdirAll(path, 0o755)
+	if err != nil {
+		return err
+	}
+
 	for _, tweet := range t.Tweets() {
 		for _, attachment := range tweet.Attachments {
 			err := attachment.Download(filepath.Join(path, attachment.Name(tweet.ID)))
@@ -62,6 +69,7 @@ func (t *Thread) DownloadAttachments(path string) error {
 			}
 		}
 	}
+
 	return nil
 }
 

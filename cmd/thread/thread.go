@@ -36,20 +36,31 @@ func run(opts *cmdOpts) error {
 		return err // TODO: wrap or provide user-friendly message?
 	}
 
-	path := filepath.Join(opts.path, opts.name)
-	ferr := th.ToFile(path)
+	threadDir := filepath.Join(opts.path, opts.name)
+
+	ferr := th.ToFile(threadDir)
 	if ferr != nil {
 		return ferr // TODO: wrap or provide user-friendly message?
+	}
+
+	if opts.noAttachments {
+		return nil
+	}
+
+	terr := th.DownloadAttachments(filepath.Join(threadDir, "attachments"))
+	if terr != nil {
+		return terr // TODO: wrap or provide user-friendly message?
 	}
 
 	return nil
 }
 
 type cmdOpts struct {
-	token   string // TODO: env
-	tweetID string
-	name    string
-	path    string // TODO: env
+	token         string // TODO: env
+	tweetID       string
+	name          string
+	path          string // TODO: env
+	noAttachments bool
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
@@ -64,6 +75,8 @@ func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
 
 	cmd.StringVar(&opts.path, "p", "", "top-level path for thread files")
 	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
+
+	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
 }
 
 // TODO: args vs flags
