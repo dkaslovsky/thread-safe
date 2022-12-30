@@ -67,11 +67,11 @@ type cmdOpts struct {
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	cmd.StringVar(&opts.token, "t", "", "twitter API bearer token")
-	cmd.StringVar(&opts.token, "token", "", "twitter API bearer token")
+	cmd.StringVar(&opts.token, "t", "", "Twitter API bearer token")
+	cmd.StringVar(&opts.token, "token", "", "Twitter API bearer token")
 
-	cmd.StringVar(&opts.tweetID, "i", "", "id of the last tweet in a single-author thread")
-	cmd.StringVar(&opts.tweetID, "id", "", "id of the last tweet in a single-author thread")
+	cmd.StringVar(&opts.tweetID, "i", "", "ID of the last tweet in a single-author thread")
+	cmd.StringVar(&opts.tweetID, "id", "", "ID of the last tweet in a single-author thread")
 
 	cmd.StringVar(&opts.name, "n", "", "name for the thread")
 	cmd.StringVar(&opts.name, "name", "", "name for the thread")
@@ -101,7 +101,19 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	return nil
 }
 
-// TODO
 func setUsage(cmd *flag.FlagSet) {
-	cmd.Usage = func() {}
+	cmd.Usage = func() {
+		fmt.Printf(usage, cmd.Name(), cmd.Name())
+	}
 }
+
+const usage = `%s saves thread content and generates a local html file
+
+Usage:
+  %s [flags]
+
+Flags:
+  -t, --token string  Twitter API bearer token
+  -i, --id    string  id of the last tweet in a single-author thread
+  -n, --name  string  name of the thread
+  -p, --path  string  top-level path for thread files`

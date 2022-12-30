@@ -11,7 +11,7 @@ import (
 
 // Run executes the package's (sub)command
 func Run(args []string) error {
-	cmd := flag.NewFlagSet("thread", flag.ExitOnError)
+	cmd := flag.NewFlagSet("html", flag.ExitOnError)
 	opts := &cmdOpts{}
 	attachOpts(cmd, opts)
 	setUsage(cmd)
@@ -76,7 +76,17 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	return nil
 }
 
-// TODO
 func setUsage(cmd *flag.FlagSet) {
-	cmd.Usage = func() {}
+	cmd.Usage = func() {
+		fmt.Printf(usage, cmd.Name(), cmd.Name())
+	}
 }
+
+const usage = `%s regenerates an html file from a previously saved thread
+
+Usage:
+  %s [flags]
+
+Flags:
+  -n, --name string  name of the thread
+  -p, --path string  top-level path for thread files`

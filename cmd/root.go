@@ -40,7 +40,7 @@ func printUsage(name string) {
 	fmt.Printf("  %s [command]\n", name)
 
 	fmt.Print("\nAvailable Commands:\n")
-	fmt.Print("  thread\tsaves thread content and generates a corresponding html file\n")
+	fmt.Print("  thread\tsaves thread content and generates a local html file\n")
 	fmt.Print("  render\tregenerates an html file from a previously saved thread\n")
 
 	fmt.Print("\nFlags:\n")
