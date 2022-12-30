@@ -3,6 +3,7 @@ package thread
 import (
 	"errors"
 	"flag"
+	"fmt"
 
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
@@ -32,26 +33,26 @@ func run(opts *cmdOpts) error {
 	client := twitter.NewTwitterClient(opts.token)
 	th, err := thread.NewThread(client, opts.name, opts.tweetID)
 	if err != nil {
-		return err // TODO: wrap or provide user-friendly message?
+		return fmt.Errorf("failed to parse thread: %w", err)
 	}
 
 	threadDir := thread.Dir(opts.path, opts.name)
 
 	fErr := th.ToJSON(threadDir)
 	if fErr != nil {
-		return fErr // TODO: wrap or provide user-friendly message?
+		return fmt.Errorf("failed to write thread JSON file: %w", err)
 	}
 
 	if !opts.noAttachments {
 		err := th.DownloadAttachments(threadDir)
 		if err != nil {
-			return err // TODO: wrap or provide user-friendly message?
+			return fmt.Errorf("failed to save thread attachment files: %w", err)
 		}
 	}
 
 	tErr := th.ToHTML(threadDir)
 	if tErr != nil {
-		return tErr // TODO: wrap or provide user-friendly message?
+		return fmt.Errorf("failed to write thread HTML file: %w", err)
 	}
 
 	return nil

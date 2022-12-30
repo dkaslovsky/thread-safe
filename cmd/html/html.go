@@ -3,6 +3,7 @@ package html
 import (
 	"errors"
 	"flag"
+	"fmt"
 
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
@@ -32,12 +33,12 @@ func run(opts *cmdOpts) error {
 
 	th, err := thread.NewThreadFromFile(threadDir)
 	if err != nil {
-		return err // TODO: wrap or provide user-friendly message?
+		return fmt.Errorf("failed to load thread from file: %w", err)
 	}
 
 	tErr := th.ToHTML(threadDir)
 	if tErr != nil {
-		return tErr // TODO: wrap or provide user-friendly message?
+		return fmt.Errorf("failed to write thread HTML file: %w", err)
 	}
 
 	return nil
