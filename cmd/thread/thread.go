@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/dkaslovsky/thread-safe/cmd/consts"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
 	"github.com/dkaslovsky/thread-safe/pkg/twitter"
@@ -59,30 +60,25 @@ func run(opts *cmdOpts) error {
 }
 
 type cmdOpts struct {
-	token         string // TODO: env
 	tweetID       string
 	name          string
-	path          string // TODO: env
 	noAttachments bool
+
+	// Read from environment variables
+	path  string
+	token string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	cmd.StringVar(&opts.token, "t", "", "Twitter API bearer token")
-	cmd.StringVar(&opts.token, "token", "", "Twitter API bearer token")
-
 	cmd.StringVar(&opts.tweetID, "i", "", "ID of the last tweet in a single-author thread")
 	cmd.StringVar(&opts.tweetID, "id", "", "ID of the last tweet in a single-author thread")
 
 	cmd.StringVar(&opts.name, "n", "", "name for the thread")
 	cmd.StringVar(&opts.name, "name", "", "name for the thread")
 
-	cmd.StringVar(&opts.path, "p", "", "top-level path for thread files")
-	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
-
 	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
 }
 
-// TODO: args vs flags
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if len(args) == 0 {
 		return errs.ErrNoArgs
@@ -93,10 +89,13 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	}
 
 	if opts.name == "" {
-		return errors.New("argument 'name' cannot be empty")
+		return errors.New("argument '--name' cannot be empty")
 	}
 	if opts.path == "" {
-		return errors.New("argument 'path' cannot be empty")
+		return errors.New("argument '--path' cannot be empty")
+	}
+	if opts.token == "" {
+		return fmt.Errorf("token must be specifed by the environment variable %s and must not be empty", consts.EnvVarToken)
 	}
 	return nil
 }
@@ -113,7 +112,5 @@ Usage:
   %s [flags]
 
 Flags:
-  -t, --token string  Twitter API bearer token
   -i, --id    string  id of the last tweet in a single-author thread
-  -n, --name  string  name of the thread
-  -p, --path  string  top-level path for thread files`
+  -n, --name  string  name to use for the thread`

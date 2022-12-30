@@ -9,32 +9,9 @@ import (
 	"text/template"
 )
 
-const htmlFileName = "thread.html"
-
-// TODO:
-// - improve template formatting
-// - support CSS
-// - possibly support user-provided CSS and/or template
-const htmlTemplate = `
-<h1>{{.Name}}</h1>
-<div class="text"><pre>{{.Header}}</pre></div>
-<ul>
-    {{range .Tweets}}
-		<h3>{{.Text}}</h3>
-		</br></br>
-		{{range .Attachments}}
-			{{if .IsImage}}
-				<img width="320" height="auto" src=attachments/{{.Path}}>
-				</br></br>
-			{{end}}
-			{{if .IsVideo}}
-				<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
-				</br></br>
-			{{end}}
-    	{{end}}
-    {{end}}
-</ul>
-`
+const (
+	htmlFileName = "thread.html"
+)
 
 func (th *Thread) ToHTML(path string) error {
 	tmpl, err := template.New("thread").Parse(htmlTemplate)
@@ -121,3 +98,28 @@ func (a TemplateAttachment) IsImage() bool {
 func (a TemplateAttachment) IsVideo() bool {
 	return a.Ext == ".mp4"
 }
+
+// TODO:
+// - improve template formatting
+// - support CSS
+// - possibly support user-provided CSS and/or template
+const htmlTemplate = `
+<h1>{{.Name}}</h1>
+<div class="text"><pre>{{.Header}}</pre></div>
+<ul>
+    {{range .Tweets}}
+		<h3>{{.Text}}</h3>
+		</br></br>
+		{{range .Attachments}}
+			{{if .IsImage}}
+				<img width="320" height="auto" src=attachments/{{.Path}}>
+				</br></br>
+			{{end}}
+			{{if .IsVideo}}
+				<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
+				</br></br>
+			{{end}}
+    	{{end}}
+    {{end}}
+</ul>
+`

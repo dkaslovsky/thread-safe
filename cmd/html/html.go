@@ -46,18 +46,19 @@ func run(opts *cmdOpts) error {
 
 type cmdOpts struct {
 	name string
-	path string // TODO: env
+
+	// Read from environment variable
+	path string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
 	cmd.StringVar(&opts.name, "n", "", "name of the thread")
 	cmd.StringVar(&opts.name, "name", "", "name of the thread")
 
-	cmd.StringVar(&opts.path, "p", "", "top-level path for thread files")
+	// Read from environment variables
 	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
 }
 
-// TODO: args vs flags
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if len(args) == 0 {
 		return errs.ErrNoArgs
@@ -68,10 +69,10 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	}
 
 	if opts.name == "" {
-		return errors.New("argument 'name' cannot be empty")
+		return errors.New("argument '--name' cannot be empty")
 	}
 	if opts.path == "" {
-		return errors.New("argument 'path' cannot be empty")
+		return errors.New("argument '--path' cannot be empty")
 	}
 	return nil
 }
@@ -88,5 +89,4 @@ Usage:
   %s [flags]
 
 Flags:
-  -n, --name string  name of the thread
-  -p, --path string  top-level path for thread files`
+  -n, --name string  name given to the thread`
