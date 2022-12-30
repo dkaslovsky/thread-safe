@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/dkaslovsky/thread-safe/cmd/render"
+	"github.com/dkaslovsky/thread-safe/cmd/html"
 	"github.com/dkaslovsky/thread-safe/cmd/thread"
 )
 
@@ -19,8 +19,8 @@ func Run(name string, version string, cliArgs []string) error {
 	switch cmd {
 	case "thread":
 		return thread.Run(args)
-	case "render":
-		return render.Run(args)
+	case "html":
+		return html.Run(args)
 	case "--help", "-help", "-h":
 		printUsage(name)
 		return nil
