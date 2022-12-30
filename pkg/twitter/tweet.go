@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -80,7 +81,9 @@ func (a Attachment) Name(tweetID string) string {
 }
 
 func (a Attachment) Download(path string) error {
-	// TODO: sanitize or check url
+	if u, err := url.ParseRequestURI(a.URL); !(err == nil && u.Scheme != "" && u.Host != "") {
+		return fmt.Errorf("invalid attachment URL %s for media_key %s", a.URL, a.MediaKey)
+	}
 	resp, err := http.Get(a.URL)
 	if err != nil {
 		return err
@@ -90,7 +93,7 @@ func (a Attachment) Download(path string) error {
 	}()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("Download of [%s] failed with status code: %d", a.URL, resp.StatusCode)
+		return fmt.Errorf("download of %s failed with status code: %d", a.URL, resp.StatusCode)
 	}
 
 	f, fErr := os.Create(filepath.Clean(path))

@@ -9,11 +9,12 @@ import (
 	"text/template"
 )
 
-// TODO: CSS from file
-// TODO: BYO Template from file?
-
 const htmlFileName = "thread.html"
 
+// TODO:
+// - improve template formatting
+// - support CSS
+// - possibly support user-provided CSS and/or template
 const htmlTemplate = `
 <h1>{{.Name}}</h1>
 <div class="text"><pre>{{.Header}}</pre></div>
@@ -64,7 +65,7 @@ func (th *Thread) Header() string {
 	}
 	first := th.Tweets[0]
 	headerStrs := []string{
-		fmt.Sprintf("URL: \t\t\t%s", first.URL), // TODO: sanitize HTML here or in template
+		fmt.Sprintf("URL: \t\t\t%s", first.URL),
 		fmt.Sprintf("Author Name: \t\t%s", first.AuthorName),
 		fmt.Sprintf("Author Handle: \t\t%s", first.AuthorHandle),
 		fmt.Sprintf("Conversation ID: \t%s", first.ConversationID),
