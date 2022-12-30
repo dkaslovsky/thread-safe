@@ -77,6 +77,10 @@ func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
 	cmd.StringVar(&opts.name, "name", "", "name for the thread")
 
 	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
+
+	// Read from environment variables
+	cmd.StringVar(&opts.token, "token", "", "bearer token for Twitter API")
+	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
