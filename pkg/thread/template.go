@@ -13,21 +13,26 @@ const (
 	htmlFileName = "thread.html"
 )
 
-func (th *Thread) ToHTML(path string, css string) error {
-	tmpl, err := template.New("thread").Parse(htmlTemplate)
+func (th *Thread) ToHTML(path string, templateFile string, cssFile string) error {
+	htmlTemplate, err := loadTemplate(templateFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load template: %w", err)
+	}
+
+	tmpl, tErr := template.New("thread").Parse(htmlTemplate)
+	if tErr != nil {
+		return fmt.Errorf("failed to parse template: %w", tErr)
 	}
 
 	htmlPath := filepath.Clean(filepath.Join(path, htmlFileName))
 	cssPath := ""
-	if css != "" {
-		cssPath = filepath.Clean(css)
+	if cssFile != "" {
+		cssPath = filepath.Clean(cssFile)
 	}
 
-	tmplThread, tErr := NewTemplateThread(th, cssPath)
-	if tErr != nil {
-		log.Fatal(tErr)
+	tmplThread, ttErr := NewTemplateThread(th, cssPath)
+	if ttErr != nil {
+		log.Fatal(ttErr)
 	}
 	f, fErr := os.Create(htmlPath)
 	if fErr != nil {
@@ -109,7 +114,19 @@ func (a TemplateAttachment) IsVideo() bool {
 	return a.Ext == ".mp4"
 }
 
-const htmlTemplate = `
+func loadTemplate(path string) (string, error) {
+	if path == "" {
+		return defaultTemplate, nil
+	}
+	templatePath := filepath.Clean(path)
+	b, err := os.ReadFile(templatePath)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+const defaultTemplate = `
 {{if .HasCSS}}
 	<head>
 	<link rel="stylesheet" type="text/css" href="../thread-safe.css" media="screen" />
@@ -117,18 +134,18 @@ const htmlTemplate = `
 {{end}}
 <h1>{{.Name}}</h1>
 <div class="text"><pre>{{.Header}}</pre></div>
-    {{range .Tweets}}
-		<h3>{{.Text}}</h3>
-		</br></br>
-		{{range .Attachments}}
-			{{if .IsImage}}
-				<img width="320" height="auto" src=attachments/{{.Path}}>
-				</br></br>
-			{{end}}
-			{{if .IsVideo}}
-				<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
-				</br></br>
-			{{end}}
-    	{{end}}
-    {{end}}
+{{range .Tweets}}
+	<h3>{{.Text}}</h3>
+	</br></br>
+	{{range .Attachments}}
+		{{if .IsImage}}
+			<img width="320" height="auto" src=attachments/{{.Path}}>
+			</br></br>
+		{{end}}
+		{{if .IsVideo}}
+			<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
+			</br></br>
+		{{end}}
+	{{end}}
+{{end}}
 `

@@ -41,9 +41,9 @@ func run(opts *cmdOpts) error {
 		return fmt.Errorf("failed to load thread from file: %w", err)
 	}
 
-	tErr := th.ToHTML(threadDir, opts.css)
+	tErr := th.ToHTML(threadDir, opts.template, opts.css)
 	if tErr != nil {
-		return fmt.Errorf("failed to write thread HTML file: %w", err)
+		return fmt.Errorf("failed to write thread HTML file: %w", tErr)
 	}
 
 	return nil
@@ -53,14 +53,18 @@ type cmdOpts struct {
 	// Args
 	name string
 	// Flags
-	css string
+	css      string
+	template string
 	// Environment variables
 	path string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	cmd.StringVar(&opts.css, "c", "", "path to optional CSS file")
-	cmd.StringVar(&opts.css, "css", "", "path to optional CSS file")
+	cmd.StringVar(&opts.css, "c", "", "optional path to CSS file")
+	cmd.StringVar(&opts.css, "css", "", "optional path to CSS file")
+
+	cmd.StringVar(&opts.template, "t", "", "optional path to template file")
+	cmd.StringVar(&opts.template, "template", "", "optional path to template file")
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
@@ -101,4 +105,5 @@ Args:
   name  string  name given to the thread
 
 Flags:
-  -c, --css  string  path to optional CSS file`
+  -c, --css       string  optional path to CSS file
+  -t, --template  string  optional path to template file`
