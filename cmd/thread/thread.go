@@ -4,7 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
@@ -86,8 +88,13 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	tweetID, tErr := parseTweetID(cmd.Arg(1))
+	if tErr != nil {
+		return tErr
+	}
+	opts.tweetID = tweetID
 	opts.name = cmd.Arg(0)
-	opts.tweetID = cmd.Arg(1)
 
 	envArgs := env.Parse()
 	opts.path = envArgs.Path
@@ -103,9 +110,24 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 		return errors.New("argument 'name' cannot be empty")
 	}
 	if opts.tweetID == "" {
-		return errors.New("argument 'id' cannot be empty")
+		return errors.New("argument 'last-tweet' cannot be empty")
 	}
 	return nil
+}
+
+func parseTweetID(urlOrID string) (string, error) {
+	u, err := url.Parse(urlOrID)
+	if err != nil {
+		// Input is not a URL so return as-is
+		return urlOrID, nil
+	}
+
+	// Parse ID from URL
+	urlParts := strings.Split(u.Path, "/")
+	if len(urlParts) == 0 {
+		return "", fmt.Errorf("failed to parse tweet ID from URL %s", urlOrID)
+	}
+	return urlParts[len(urlParts)-1], nil
 }
 
 func setUsage(appName string, cmd *flag.FlagSet) {
@@ -118,11 +140,11 @@ func setUsage(appName string, cmd *flag.FlagSet) {
 const usage = `%s saves thread content and generates a local html file
 
 Usage:
-  %s %s [flags] <name> <last-tweet-id>
+  %s %s [flags] <name> <last-tweet>
 
 Args:
   name           string  name to use for the thread
-  last-tweet-id  string  id of the last tweet in a single-author thread
+  last-tweet     string  URL or ID of the last tweet in a single-author thread
 
 Flags:
   --no-attachments  do not download attachments`
