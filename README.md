@@ -133,7 +133,7 @@ with the `TemplateAttachment` object defined by
 ```go
 type TemplateAttachment struct {
 	Path string // Path to the attachment file on the local filesystem
-	Ext  string // Attachment's extension (.jpg, .mpe4
+	Ext  string // Attachment's extension (.jpg, .mp4)
 }
 
 func (TemplateAttachment) IsImage() bool
