@@ -86,10 +86,10 @@ func NewTemplateThread(th *Thread, cssPath string) (TemplateThread, error) {
 }
 
 type TemplateThread struct {
-	Name   string
-	Header string
-	Tweets []TemplateTweet
-	CSS    string
+	Name   string          // Name of the thread
+	Header string          // Thread header information
+	CSS    string          // Path to a custom CSS file
+	Tweets []TemplateTweet // Thread's tweets
 }
 
 func (t TemplateThread) HasCSS() bool {
@@ -97,13 +97,13 @@ func (t TemplateThread) HasCSS() bool {
 }
 
 type TemplateTweet struct {
-	Text        string
-	Attachments []TemplateAttachment
+	Text        string               // Tweet's text contents
+	Attachments []TemplateAttachment // Tweet's media attachments
 }
 
 type TemplateAttachment struct {
-	Path string
-	Ext  string
+	Path string // Path to the attachment file on the local filesystem
+	Ext  string // Attachment's extension (.jpg, .mpe4)
 }
 
 func (a TemplateAttachment) IsImage() bool {
