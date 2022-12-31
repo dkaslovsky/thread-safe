@@ -7,12 +7,13 @@ Keep your favorite Twitter threads safe by downloading a local copy
 Specifically, thread-safe writes a .json file containing the thread data, downloads all of the thread's media attachments (images, videos), and generates an .html file for displaying the thread in a browser.
 
 `thread-safe` is designed to
-* save a local copy of information-rich Twitter threads
+* save a local copy of informative Twitter threads
 * eliminate the need to use an external or third-party app to which you need to grant access to your Twitter account
-* eliminate the need to reply to a tweet to "unroll" or otherwise save copy of the contents
+* eliminate the need to reply to a tweet to "unroll" or otherwise save the thread's contents
 * ignore replies from users other than the thread's author
 
-Therefore, thread-safe's definition of a thread is intentionally limited to: _a consecutive series of tweets authored by the same Twitter user_. 
+Therefore, `thread-safe`'s definition of a thread is intentionally limited to
+> _a consecutive series of tweets authored by the same Twitter user_. 
 
 ## Example
 TODO: Find a good, non-controversial thread with media attachments as an example...
@@ -25,10 +26,12 @@ TODO
 * A valid Twitter API bearer token (see Twitter's [documentation](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens))
 * The URL or ID of the **last** tweet in the thread
 
-A tweet's URL is typically of the form `https://twitter.com/<username>/status/<ID>?<params>`.
+A tweet's URL is typically of the form
+>`https://twitter.com/<username>/status/<ID>?<parameters>`
+
 The entire URL or simply the numeric `<ID>` portion of the URL can be provided to identify a tweet.
 
-While it is a bit annoying to have to identify the last tweet in the thread rather than the more natural first tweet, limitations of the Twitter API make this unavoidable for `thread-safe`'s workflow.
+While it is inconvenient to have to identify the last tweet in the thread rather than the more natural first tweet, limitations of the Twitter API make this unavoidable for `thread-safe`'s workflow.
 
 </br>
 
