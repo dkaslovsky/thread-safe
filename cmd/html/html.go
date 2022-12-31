@@ -41,7 +41,7 @@ func run(opts *cmdOpts) error {
 		return fmt.Errorf("failed to load thread from file: %w", err)
 	}
 
-	tErr := th.ToHTML(threadDir)
+	tErr := th.ToHTML(threadDir, opts.css)
 	if tErr != nil {
 		return fmt.Errorf("failed to write thread HTML file: %w", err)
 	}
@@ -52,12 +52,15 @@ func run(opts *cmdOpts) error {
 type cmdOpts struct {
 	// Args
 	name string
+	// Flags
+	css string
 	// Environment variables
 	path string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	// No flags to define
+	cmd.StringVar(&opts.css, "c", "", "path to optional CSS file")
+	cmd.StringVar(&opts.css, "css", "", "path to optional CSS file")
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
@@ -92,7 +95,10 @@ func setUsage(appName string, cmd *flag.FlagSet) {
 const usage = `%s regenerates an html file from a previously saved thread
 
 Usage:
-  %s %s <name>
+  %s %s [flags] <name>
 
 Args:
-  name  string  name given to the thread`
+  name  string  name given to the thread
+
+Flags:
+  -c, --css  string  path to optional CSS file`

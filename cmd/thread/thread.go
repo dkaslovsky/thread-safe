@@ -57,7 +57,7 @@ func run(opts *cmdOpts) error {
 		}
 	}
 
-	tErr := th.ToHTML(threadDir)
+	tErr := th.ToHTML(threadDir, opts.css)
 	if tErr != nil {
 		return fmt.Errorf("failed to write thread HTML file: %w", err)
 	}
@@ -70,6 +70,7 @@ type cmdOpts struct {
 	name    string
 	tweetID string
 	// Flags
+	css           string
 	noAttachments bool
 	// Environment variables
 	path  string
@@ -77,6 +78,9 @@ type cmdOpts struct {
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
+	cmd.StringVar(&opts.css, "c", "", "path to optional CSS file")
+	cmd.StringVar(&opts.css, "css", "", "path to optional CSS file")
+
 	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
 }
 
@@ -147,4 +151,5 @@ Args:
   last-tweet     string  URL or ID of the last tweet in a single-author thread
 
 Flags:
-  --no-attachments  do not download attachments`
+  -c, --css  string  path to optional CSS file  
+  --no-attachments   do not download attachments`

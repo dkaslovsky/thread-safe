@@ -13,18 +13,22 @@ const (
 	htmlFileName = "thread.html"
 )
 
-func (th *Thread) ToHTML(path string) error {
+func (th *Thread) ToHTML(path string, css string) error {
 	tmpl, err := template.New("thread").Parse(htmlTemplate)
 	if err != nil {
 		return err
 	}
 
-	tmplThread, tErr := NewTemplateThread(th)
+	htmlPath := filepath.Clean(filepath.Join(path, htmlFileName))
+	cssPath := ""
+	if css != "" {
+		cssPath = filepath.Clean(css)
+	}
+
+	tmplThread, tErr := NewTemplateThread(th, cssPath)
 	if tErr != nil {
 		log.Fatal(tErr)
 	}
-
-	htmlPath := filepath.Clean(filepath.Join(path, htmlFileName))
 	f, fErr := os.Create(htmlPath)
 	if fErr != nil {
 		return fErr
@@ -50,7 +54,7 @@ func (th *Thread) Header() string {
 	return strings.Join(headerStrs, "\n")
 }
 
-func NewTemplateThread(th *Thread) (TemplateThread, error) {
+func NewTemplateThread(th *Thread, cssPath string) (TemplateThread, error) {
 	threadLen := th.Len()
 	tweets := []TemplateTweet{}
 	for i, tweet := range th.Tweets {
@@ -72,6 +76,7 @@ func NewTemplateThread(th *Thread) (TemplateThread, error) {
 		Name:   th.Name,
 		Header: th.Header(),
 		Tweets: tweets,
+		CSS:    cssPath,
 	}, nil
 }
 
@@ -79,6 +84,11 @@ type TemplateThread struct {
 	Name   string
 	Header string
 	Tweets []TemplateTweet
+	CSS    string
+}
+
+func (t TemplateThread) HasCSS() bool {
+	return t.CSS != ""
 }
 
 type TemplateTweet struct {
@@ -99,14 +109,14 @@ func (a TemplateAttachment) IsVideo() bool {
 	return a.Ext == ".mp4"
 }
 
-// TODO:
-// - improve template formatting
-// - support CSS
-// - possibly support user-provided CSS and/or template
 const htmlTemplate = `
+{{if .HasCSS}}
+	<head>
+	<link rel="stylesheet" type="text/css" href="../thread-safe.css" media="screen" />
+	</head>
+{{end}}
 <h1>{{.Name}}</h1>
 <div class="text"><pre>{{.Header}}</pre></div>
-<ul>
     {{range .Tweets}}
 		<h3>{{.Text}}</h3>
 		</br></br>
@@ -121,5 +131,4 @@ const htmlTemplate = `
 			{{end}}
     	{{end}}
     {{end}}
-</ul>
 `
