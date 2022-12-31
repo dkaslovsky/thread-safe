@@ -13,7 +13,7 @@ const (
 )
 
 func main() {
-	err := cmd.Run(name, version, os.Args)
+	err := cmd.Run(name, version)
 	if err != nil {
 		fmt.Printf("%s: %v\n", name, err)
 		os.Exit(1)
