@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
@@ -31,6 +32,9 @@ func Run(args []string) error {
 
 func run(opts *cmdOpts) error {
 	threadDir := thread.Dir(opts.path, opts.name)
+	if _, err := os.Stat(threadDir); os.IsNotExist(err) {
+		return fmt.Errorf("%s does not exist, check the thread name", threadDir)
+	}
 
 	th, err := thread.NewThreadFromFile(threadDir)
 	if err != nil {
@@ -55,9 +59,6 @@ type cmdOpts struct {
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
 	cmd.StringVar(&opts.name, "n", "", "name of the thread")
 	cmd.StringVar(&opts.name, "name", "", "name of the thread")
-
-	// Read from environment variables
-	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {

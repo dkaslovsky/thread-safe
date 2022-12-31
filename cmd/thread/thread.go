@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
@@ -31,13 +32,16 @@ func Run(args []string) error {
 }
 
 func run(opts *cmdOpts) error {
+	threadDir := thread.Dir(opts.path, opts.name)
+	if _, err := os.Stat(threadDir); !os.IsNotExist(err) {
+		return fmt.Errorf("%s already exists, rename or delete instead of overwriting", threadDir)
+	}
+
 	client := twitter.NewTwitterClient(opts.token)
 	th, err := thread.NewThread(client, opts.name, opts.tweetID)
 	if err != nil {
 		return fmt.Errorf("failed to parse thread: %w", err)
 	}
-
-	threadDir := thread.Dir(opts.path, opts.name)
 
 	fErr := th.ToJSON(threadDir)
 	if fErr != nil {
@@ -77,10 +81,6 @@ func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
 	cmd.StringVar(&opts.name, "name", "", "name for the thread")
 
 	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
-
-	// Read from environment variables
-	cmd.StringVar(&opts.token, "token", "", "bearer token for Twitter API")
-	cmd.StringVar(&opts.path, "path", "", "top-level path for thread files")
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
