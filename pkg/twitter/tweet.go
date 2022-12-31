@@ -12,9 +12,11 @@ import (
 )
 
 const (
+	// tweetReferencedTweetTypeRepliedTo is the field to use for following a thread's response chain
 	tweetReferencedTweetTypeRepliedTo = "replied_to"
 )
 
+// Tweet represents a Twitter tweet
 type Tweet struct {
 	ID             string       `json:"id"`
 	ConversationID string       `json:"conversation_id"`
@@ -28,6 +30,7 @@ type Tweet struct {
 	Attachments    []Attachment `json:"attachments"`
 }
 
+// ParseTweet constructs a Tweet from the data returned by querying the Twitter API
 func ParseTweet(raw *tw.TweetDictionary) (*Tweet, error) {
 	repliedToIDs := []string{}
 	for _, ref := range raw.Tweet.ReferencedTweets {
@@ -70,16 +73,19 @@ func ParseTweet(raw *tw.TweetDictionary) (*Tweet, error) {
 	}, nil
 }
 
+// Attachment represents a media file attached to a Tweet
 type Attachment struct {
 	MediaKey string `json:"media_key"`
 	Type     string `json:"type"`
 	URL      string `json:"url"`
 }
 
+// Name constructs the file name to use for saving an Attachment
 func (a Attachment) Name(tweetID string) string {
 	return fmt.Sprintf("tweet=%s-media_key=%s%s", tweetID, a.MediaKey, filepath.Ext(a.URL))
 }
 
+// Download saves an Attachment as a file
 func (a Attachment) Download(path string) error {
 	if u, err := url.ParseRequestURI(a.URL); !(err == nil && u.Scheme != "" && u.Host != "") {
 		return fmt.Errorf("invalid attachment URL %s for media_key %s", a.URL, a.MediaKey)

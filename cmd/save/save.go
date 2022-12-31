@@ -47,7 +47,7 @@ func run(opts *cmdOpts) error {
 
 	fErr := th.ToJSON(threadDir)
 	if fErr != nil {
-		return fmt.Errorf("failed to write thread JSON file: %w", err)
+		return fmt.Errorf("failed to write thread JSON file: %w", fErr)
 	}
 
 	if !opts.noAttachments {
@@ -59,7 +59,7 @@ func run(opts *cmdOpts) error {
 
 	tErr := th.ToHTML(threadDir, opts.template, opts.css)
 	if tErr != nil {
-		return fmt.Errorf("failed to write thread HTML file: %w", err)
+		return fmt.Errorf("failed to write thread HTML file: %w", tErr)
 	}
 
 	return nil
@@ -123,6 +123,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	return nil
 }
 
+// parseTweetID extracts a tweet ID from its URL or returns the original input if provided the ID
 func parseTweetID(urlOrID string) (string, error) {
 	u, err := url.Parse(urlOrID)
 	if err != nil {
@@ -140,8 +141,8 @@ func parseTweetID(urlOrID string) (string, error) {
 
 func setUsage(appName string, cmd *flag.FlagSet) {
 	cmd.Usage = func() {
-		fmt.Printf(fmt.Sprintf("%s\n", usage), cmd.Name(), appName, cmd.Name())
-		fmt.Printf("\n%s\n", env.Usage())
+		fmt.Printf(usage, cmd.Name(), appName, cmd.Name())
+		fmt.Printf("\n\n%s\n", env.Usage())
 	}
 }
 

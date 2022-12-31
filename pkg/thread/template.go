@@ -10,9 +10,11 @@ import (
 )
 
 const (
+	// htmlFileName is the name used for the generated HTML file
 	htmlFileName = "thread.html"
 )
 
+// ToHTML generates and saves an HTML file from a thread using default or provided template and CSS files
 func (th *Thread) ToHTML(path string, templateFile string, cssFile string) error {
 	htmlTemplate, err := loadTemplate(templateFile)
 	if err != nil {
@@ -45,6 +47,7 @@ func (th *Thread) ToHTML(path string, templateFile string, cssFile string) error
 	return tmpl.Execute(f, tmplThread)
 }
 
+// Header returns a string with thread metadata
 func (th *Thread) Header() string {
 	if th.Len() == 0 {
 		return ""
@@ -59,6 +62,7 @@ func (th *Thread) Header() string {
 	return strings.Join(headerStrs, "\n")
 }
 
+// NewTemplateThread constructs a TemplateThread from a thread
 func NewTemplateThread(th *Thread, cssPath string) (TemplateThread, error) {
 	threadLen := th.Len()
 	tweets := []TemplateTweet{}
@@ -85,31 +89,37 @@ func NewTemplateThread(th *Thread, cssPath string) (TemplateThread, error) {
 	}, nil
 }
 
+// TemplateThread represents a top level thread for a template
 type TemplateThread struct {
-	Name   string          // Name of the thread
+	Name   string          // Name of thread
 	Header string          // Thread header information
-	CSS    string          // Path to a custom CSS file
+	CSS    string          // Path to custom CSS file
 	Tweets []TemplateTweet // Thread's tweets
 }
 
+// HasCSS evaluates if a TemplateThread has a non-empty path to a CSS file
 func (t TemplateThread) HasCSS() bool {
 	return t.CSS != ""
 }
 
+// TemplateTweet represents a tweet for a template
 type TemplateTweet struct {
 	Text        string               // Tweet's text contents
 	Attachments []TemplateAttachment // Tweet's media attachments
 }
 
+// TemplateAttachment represents a tweet's media attachment for a template
 type TemplateAttachment struct {
 	Path string // Path to the attachment file on the local filesystem
 	Ext  string // Attachment's extension (.jpg, .mpe4)
 }
 
+// IsImage evaluates if an attachment is an image file
 func (a TemplateAttachment) IsImage() bool {
 	return a.Ext == ".jpg"
 }
 
+// IsVideo evaluates if an attachment is a video file
 func (a TemplateAttachment) IsVideo() bool {
 	return a.Ext == ".mp4"
 }

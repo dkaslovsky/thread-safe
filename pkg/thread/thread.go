@@ -13,16 +13,19 @@ import (
 const (
 	// maxThreadLen is the maximum number of tweets allowed to be fetched for constructing a thread
 	maxThreadLen = 100
-
+	// attachmentsDirName is the name used for the directory where attachment files are saved
 	attachmentsDirName = "attachments"
-	jsonFileName       = "thread.json"
+	// jsonFileName is the name used for the generated JSON file
+	jsonFileName = "thread.json"
 )
 
+// Thread represents a Twitter thread
 type Thread struct {
 	Name   string           `json:"name"`
 	Tweets []*twitter.Tweet `json:"tweets"`
 }
 
+// NewThread constructs a Thread by querying the Twitter API
 func NewThread(client twitter.Client, name string, lastID string) (*Thread, error) {
 	tweets, err := walkTweets(client, lastID, maxThreadLen)
 	if err != nil {
@@ -38,6 +41,7 @@ func NewThread(client twitter.Client, name string, lastID string) (*Thread, erro
 	}, nil
 }
 
+// NewThreadFromFile constructs a Thread by loading data from a file
 func NewThreadFromFile(path string) (*Thread, error) {
 	filePath := filepath.Clean(filepath.Join(path, jsonFileName))
 	b, err := os.ReadFile(filePath)
@@ -49,10 +53,7 @@ func NewThreadFromFile(path string) (*Thread, error) {
 	return th, json.Unmarshal(b, &th)
 }
 
-func (th *Thread) Len() int {
-	return len(th.Tweets)
-}
-
+// ToJSON generates and saves a JSON file from a Thread's tweets
 func (th *Thread) ToJSON(path string) error {
 	err := os.MkdirAll(filepath.Clean(path), 0o750)
 	if err != nil {
@@ -68,6 +69,7 @@ func (th *Thread) ToJSON(path string) error {
 	return os.WriteFile(jsonPath, b, 0o600)
 }
 
+// DownloadAttachments saves all media attachments from a Thread's
 func (th *Thread) DownloadAttachments(path string) error {
 	attachmentPath := filepath.Join(path, attachmentsDirName)
 	err := os.MkdirAll(attachmentPath, 0o750)
@@ -88,6 +90,13 @@ func (th *Thread) DownloadAttachments(path string) error {
 	return nil
 }
 
+// Len returns the number of tweets contained in a Thread
+func (th *Thread) Len() int {
+	return len(th.Tweets)
+}
+
+// walkTweets queries for tweets by following the RepliedToID of the starting tweet and stopping
+// once no more tweets are in the chain or a new conversation ID or author ID is encountered
 func walkTweets(client twitter.Client, id string, limit int) ([]*twitter.Tweet, error) {
 	tweets := []*twitter.Tweet{}
 
@@ -128,6 +137,7 @@ func walkTweets(client twitter.Client, id string, limit int) ([]*twitter.Tweet, 
 	return nil, fmt.Errorf("exceeded maximum number of tweets to fetch [%d]", limit)
 }
 
+// Dir constructs the name of the directory where thread files are written
 func Dir(topLevelPath string, threadName string) string {
 	return filepath.Join(topLevelPath, strings.Replace(threadName, " ", "_", -1))
 }

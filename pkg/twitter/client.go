@@ -8,18 +8,12 @@ import (
 	tw "github.com/g8rswimmer/go-twitter/v2"
 )
 
+// Client is the interface for querying tweets
 type Client interface {
 	LookupTweet(id string) (*Tweet, error)
 }
 
-type authorize struct {
-	Token string
-}
-
-func (a authorize) Add(req *http.Request) {
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.Token))
-}
-
+// NewTwitterClient constructs a Client for querying the Twitter API
 func NewTwitterClient(token string) Client {
 	return &twitterClient{
 		c: &tw.Client{
@@ -66,4 +60,12 @@ func (tc *twitterClient) LookupTweet(tweetID string) (*Tweet, error) {
 	}
 
 	return ParseTweet(tweetDictionary)
+}
+
+type authorize struct {
+	Token string
+}
+
+func (a authorize) Add(req *http.Request) {
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.Token))
 }
