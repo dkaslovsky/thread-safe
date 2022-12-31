@@ -62,12 +62,12 @@ Usage:
   %s [command]
 
 Available Commands:
-  thread	saves thread content and generates a local html file
-  html		regenerates an html file from a previously saved thread
+  thread  saves thread content and generates a local html file
+  html    regenerates an html file from a previously saved thread
 
 Flags:
-  -h, --help	help for %s
-  -v, --version	version for %s
+  -h, --help	 help for %s
+  -v, --version	 version for %s
 
 %s
 

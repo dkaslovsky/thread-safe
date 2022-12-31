@@ -50,15 +50,15 @@ func run(opts *cmdOpts) error {
 }
 
 type cmdOpts struct {
+	// Args
 	name string
 
-	// Read from environment variable
+	// Environment variables
 	path string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	cmd.StringVar(&opts.name, "n", "", "name of the thread")
-	cmd.StringVar(&opts.name, "name", "", "name of the thread")
+	// No flags to define
 }
 
 func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
@@ -69,6 +69,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if err != nil {
 		return err
 	}
+	opts.name = cmd.Arg(0)
 
 	envArgs := env.Parse()
 	opts.path = envArgs.Path
@@ -77,7 +78,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 		return errs.ErrEmptyPath
 	}
 	if opts.name == "" {
-		return errors.New("argument '--name' cannot be empty")
+		return errors.New("argument 'name' cannot be empty")
 	}
 	return nil
 }
@@ -92,7 +93,7 @@ func setUsage(cmd *flag.FlagSet) {
 const usage = `%s regenerates an html file from a previously saved thread
 
 Usage:
-  %s [flags]
+  %s name
 
-Flags:
-  -n, --name string  name given to the thread`
+Args:
+  name  string  name given to the thread`

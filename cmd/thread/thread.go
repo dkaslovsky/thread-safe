@@ -64,22 +64,17 @@ func run(opts *cmdOpts) error {
 }
 
 type cmdOpts struct {
-	tweetID       string
-	name          string
+	// Args
+	name    string
+	tweetID string
+	// Flags
 	noAttachments bool
-
-	// Read from environment variables
+	// Environment variables
 	path  string
 	token string
 }
 
 func attachOpts(cmd *flag.FlagSet, opts *cmdOpts) {
-	cmd.StringVar(&opts.tweetID, "i", "", "ID of the last tweet in a single-author thread")
-	cmd.StringVar(&opts.tweetID, "id", "", "ID of the last tweet in a single-author thread")
-
-	cmd.StringVar(&opts.name, "n", "", "name for the thread")
-	cmd.StringVar(&opts.name, "name", "", "name for the thread")
-
 	cmd.BoolVar(&opts.noAttachments, "no-attachments", false, "do not download media attachments")
 }
 
@@ -91,6 +86,8 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if err != nil {
 		return err
 	}
+	opts.name = cmd.Arg(0)
+	opts.tweetID = cmd.Arg(1)
 
 	envArgs := env.Parse()
 	opts.path = envArgs.Path
@@ -103,7 +100,10 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 		return fmt.Errorf("token must be specifed by the environment variable %s and must not be empty", env.Token)
 	}
 	if opts.name == "" {
-		return errors.New("argument '--name' cannot be empty")
+		return errors.New("argument 'name' cannot be empty")
+	}
+	if opts.tweetID == "" {
+		return errors.New("argument 'id' cannot be empty")
 	}
 	return nil
 }
@@ -118,8 +118,11 @@ func setUsage(cmd *flag.FlagSet) {
 const usage = `%s saves thread content and generates a local html file
 
 Usage:
-  %s [flags]
+  %s [flags] name last-tweet-id
+
+Args:
+  name           string  name to use for the thread
+  last-tweet-id  string  id of the last tweet in a single-author thread
 
 Flags:
-  -i, --id    string  id of the last tweet in a single-author thread
-  -n, --name  string  name to use for the thread`
+  --no-attachments  do not download attachments`
