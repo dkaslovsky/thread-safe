@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/dkaslovsky/thread-safe/cmd/consts"
+	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
 	"github.com/dkaslovsky/thread-safe/pkg/thread"
 	"github.com/dkaslovsky/thread-safe/pkg/twitter"
@@ -92,14 +92,18 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 		return err
 	}
 
-	if opts.name == "" {
-		return errors.New("argument '--name' cannot be empty")
-	}
+	envArgs := env.Parse()
+	opts.path = envArgs.Path
+	opts.token = envArgs.Token
+
 	if opts.path == "" {
-		return errors.New("argument '--path' cannot be empty")
+		return errs.ErrEmptyPath
 	}
 	if opts.token == "" {
-		return fmt.Errorf("token must be specifed by the environment variable %s and must not be empty", consts.EnvVarToken)
+		return fmt.Errorf("token must be specifed by the environment variable %s and must not be empty", env.Token)
+	}
+	if opts.name == "" {
+		return errors.New("argument '--name' cannot be empty")
 	}
 	return nil
 }
