@@ -29,11 +29,13 @@ func Run(name string, version string) error {
 		return nil
 	}
 
-	switch subCmd := flag.Arg(0); subCmd {
+	subCmd, args := flag.Arg(0), os.Args[2:]
+
+	switch subCmd {
 	case "thread":
-		return thread.Run(os.Args[2:])
+		return thread.Run(name, args)
 	case "html":
-		return html.Run(os.Args[2:])
+		return html.Run(name, args)
 	case "version":
 		printVersion(name, version)
 	case "help":

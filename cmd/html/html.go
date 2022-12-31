@@ -12,11 +12,11 @@ import (
 )
 
 // Run executes the package's (sub)command
-func Run(args []string) error {
+func Run(appName string, args []string) error {
 	cmd := flag.NewFlagSet("html", flag.ExitOnError)
 	opts := &cmdOpts{}
 	attachOpts(cmd, opts)
-	setUsage(cmd)
+	setUsage(appName, cmd)
 
 	err := parseArgs(cmd, opts, args)
 	if err != nil {
@@ -52,7 +52,6 @@ func run(opts *cmdOpts) error {
 type cmdOpts struct {
 	// Args
 	name string
-
 	// Environment variables
 	path string
 }
@@ -83,9 +82,9 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	return nil
 }
 
-func setUsage(cmd *flag.FlagSet) {
+func setUsage(appName string, cmd *flag.FlagSet) {
 	cmd.Usage = func() {
-		fmt.Printf(fmt.Sprintf("%s\n", usage), cmd.Name(), cmd.Name())
+		fmt.Printf(fmt.Sprintf("%s\n", usage), cmd.Name(), appName, cmd.Name())
 		fmt.Printf("\n%s\n", env.Usage())
 	}
 }
@@ -93,7 +92,7 @@ func setUsage(cmd *flag.FlagSet) {
 const usage = `%s regenerates an html file from a previously saved thread
 
 Usage:
-  %s name
+  %s %s <name>
 
 Args:
   name  string  name given to the thread`
