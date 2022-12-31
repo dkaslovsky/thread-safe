@@ -1,7 +1,6 @@
 # thread-safe
 Keep your favorite Twitter threads safe by downloading a local copy
 
-
 ## Overview
 `thread-safe` is a simple CLI for saving a local copy of a Twitter thread.
 
@@ -66,7 +65,7 @@ Note that the Twitter API bearer token must be provided via the `THREAD_SAFE_TOK
 </br>
 
 ### Subcommands
-`save`: save thread data and generate HTML for local browsing
+* `save`: save thread data and generate HTML for local browsing
 ```
 $ thread-safe save --help
 'save' saves thread content and generates a local html file
@@ -88,7 +87,7 @@ Environment Variables:
   THREAD_SAFE_TOKEN	bearer token for Twitter API
 ```
 
-`regen`: useful for reprocessing saved thread data using an updated template or CSS
+* `regen`: reprocess saved thread data using an updated template or CSS
 ```
 $ thread-safe regen --help
 'regen' regenerates an html file from a previously saved thread
@@ -107,34 +106,37 @@ Environment Variables:
   THREAD_SAFE_PATH	top level path for thread files (current directory if unset)
   THREAD_SAFE_TOKEN	bearer token for Twitter API
 ```
+</br>
 
-#### **Custom CSS**
+### Custom CSS
 The `save` and `regen` subcommands support providing an optional path to a CSS file to be linked as an external stylesheet in the generated HTML.
 
-#### **Custom Templates**
-The `save` and `regen` subcommands also support providing an optional path to a file containing an HTML template to be used in place of `thread-safe`'s default template. The contents of a provided template file must be parsable by Golang's [(*Template).Parse](https://pkg.go.dev/text/template#Template.Parse) function.
+</br>
+
+### Custom Templates
+The `save` and `regen` subcommands also support providing an optional path to a file containing an HTML template to be used in place of `thread-safe`'s default template. The contents of a provided template file must be parsable by the Go [(*Template).Parse()](https://pkg.go.dev/text/template#Template.Parse) function.
 
 The template must make use of the following objects:
 
-The top level `TemplateThread` is defined by
+* The top level `TemplateThread` object defined by
 ```go
 type TemplateThread struct {
-	Name   string          // Name of the thread
+	Name   string          // Name of thread
 	Header string          // Thread header information
-	CSS    string          // Path to a custom CSS file
+	CSS    string          // Path to custom CSS file
 	Tweets []TemplateTweet // Thread's tweets
 }
 
 func (TemplateThread) HasCSS() bool
 ```
-The nested `TemplateTweet` object is defined by
+* The nested `TemplateTweet` object defined by
 ```go
 type TemplateTweet struct {
-	Text        string               // Tweet's text contents
+	Text        string               // Tweet's text content
 	Attachments []TemplateAttachment // Tweet's media attachments
 }
 ```
-with the `TemplateAttachment` object defined by
+* The `TemplateAttachment` object defined by
 ```go
 type TemplateAttachment struct {
 	Path string // Path to the attachment file on the local filesystem
