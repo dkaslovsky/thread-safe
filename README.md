@@ -138,5 +138,5 @@ type TemplateAttachment struct {
 
 func (TemplateAttachment) IsImage() bool
 
-func (a TemplateAttachment) IsVideo() bool
+func (TemplateAttachment) IsVideo() bool
 ```
