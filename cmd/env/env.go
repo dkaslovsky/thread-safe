@@ -1,6 +1,9 @@
 package env
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 const (
 	Path  = "THREAD_SAFE_PATH"
@@ -28,3 +31,11 @@ func Parse() *Args {
 		Token: token,
 	}
 }
+
+func Usage() string {
+	return fmt.Sprintf(usage, Path, Token)
+}
+
+var usage = `Environment Variables:
+  %s	top level path for thread files (current directory if unset)
+  %s	bearer token for Twitter API`

@@ -83,7 +83,8 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 
 func setUsage(cmd *flag.FlagSet) {
 	cmd.Usage = func() {
-		fmt.Printf(usage, cmd.Name(), cmd.Name())
+		fmt.Printf(fmt.Sprintf("%s\n", usage), cmd.Name(), cmd.Name())
+		fmt.Printf("\n%s\n", env.Usage())
 	}
 }
 

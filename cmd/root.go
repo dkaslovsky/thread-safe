@@ -48,9 +48,7 @@ func printUsage(name string) {
 	fmt.Printf("  -h, --help\thelp for %s\n", name)
 	fmt.Printf("  -v, --version\tversion for %s\n", name)
 
-	fmt.Print("\nEnvironment Variables:\n")
-	fmt.Printf("  %s\ttop level path for thread files (current directory if unset)\n", env.Path)
-	fmt.Printf("  %s\tbearer token for Twitter API\n", env.Token)
+	fmt.Printf("\n%s\n", env.Usage())
 
 	fmt.Printf("\nUse \"%s [command] --help\" for more information about a command\n", name)
 }
