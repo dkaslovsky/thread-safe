@@ -1,4 +1,4 @@
-package thread
+package save
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ import (
 
 // Run executes the package's (sub)command
 func Run(appName string, args []string) error {
-	cmd := flag.NewFlagSet("thread", flag.ExitOnError)
+	cmd := flag.NewFlagSet("save", flag.ExitOnError)
 	opts := &cmdOpts{}
 	attachOpts(cmd, opts)
 	setUsage(appName, cmd)
@@ -145,7 +145,7 @@ func setUsage(appName string, cmd *flag.FlagSet) {
 	}
 }
 
-const usage = `%s saves thread content and generates a local html file
+const usage = `'%s' saves thread content and generates a local html file
 
 Usage:
   %s %s [flags] <name> <last-tweet>

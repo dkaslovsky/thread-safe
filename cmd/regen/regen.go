@@ -1,4 +1,4 @@
-package html
+package regen
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 
 // Run executes the package's (sub)command
 func Run(appName string, args []string) error {
-	cmd := flag.NewFlagSet("html", flag.ExitOnError)
+	cmd := flag.NewFlagSet("regen", flag.ExitOnError)
 	opts := &cmdOpts{}
 	attachOpts(cmd, opts)
 	setUsage(appName, cmd)
@@ -96,7 +96,7 @@ func setUsage(appName string, cmd *flag.FlagSet) {
 	}
 }
 
-const usage = `%s regenerates an html file from a previously saved thread
+const usage = `'%s' regenerates an html file from a previously saved thread
 
 Usage:
   %s %s [flags] <name>

@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
-	"github.com/dkaslovsky/thread-safe/cmd/html"
-	"github.com/dkaslovsky/thread-safe/cmd/thread"
+	"github.com/dkaslovsky/thread-safe/cmd/regen"
+	"github.com/dkaslovsky/thread-safe/cmd/save"
 )
 
 // Run executes the top level command
@@ -32,10 +32,10 @@ func Run(name string, version string) error {
 	subCmd, args := flag.Arg(0), os.Args[2:]
 
 	switch subCmd {
-	case "thread":
-		return thread.Run(name, args)
-	case "html":
-		return html.Run(name, args)
+	case "save":
+		return save.Run(name, args)
+	case "regen":
+		return regen.Run(name, args)
 	case "version":
 		printVersion(name, version)
 	case "help":
@@ -57,14 +57,14 @@ func printVersion(name string, version string) {
 	fmt.Printf("%s v%s\n", name, version)
 }
 
-const usage = `%s saves a local copy of a Twitter thread
+const usage = `'%s' saves a local copy of a Twitter thread
 
 Usage:
   %s [flags]
   %s [command]
 
 Available Commands:
-  thread  saves thread content and generates a local html file
+  save    saves thread content and generates a local html file
   html    regenerates an html file from a previously saved thread
 
 Flags:

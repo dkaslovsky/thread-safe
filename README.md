@@ -41,15 +41,15 @@ While it is inconvenient to have to identify the last tweet in the thread rather
 ### Top Level Usage
 ```
 $ thread-safe --help
-thread-safe saves a local copy of a Twitter thread
+'thread-safe' saves a local copy of a Twitter thread
 
 Usage:
   thread-safe [flags]
   thread-safe [command]
 
 Available Commands:
-  thread  saves thread content and generates a local html file
-  html    regenerates an html file from a previously saved thread
+  save     saves thread content and generates a local html file
+  regen    regenerates an html file from a previously saved thread
 
 Flags:
   -h, --help	 help for thread-safe
@@ -66,12 +66,13 @@ Note that the Twitter API bearer token must be provided via the `THREAD_SAFE_TOK
 </br>
 
 ### Subcommands
-`thread`: save thread data and generate HTML for local browsing
+`save`: save thread data and generate HTML for local browsing
 ```
-thread saves thread content and generates a local html file
+$ thread-safe save --help
+'save' saves thread content and generates a local html file
 
 Usage:
-  thread-safe thread [flags] <name> <last-tweet>
+  thread-safe save [flags] <name> <last-tweet>
 
 Args:
   name           string  name to use for the thread
@@ -87,12 +88,13 @@ Environment Variables:
   THREAD_SAFE_TOKEN	bearer token for Twitter API
 ```
 
-`html`: useful for reprocessing saved thread data using an updated template or CSS
+`regen`: useful for reprocessing saved thread data using an updated template or CSS
 ```
-html regenerates an html file from a previously saved thread
+$ thread-safe regen --help
+'regen' regenerates an html file from a previously saved thread
 
 Usage:
-  thread-safe html [flags] <name>
+  thread-safe regen [flags] <name>
 
 Args:
   name  string  name given to the thread
@@ -107,10 +109,10 @@ Environment Variables:
 ```
 
 #### **Custom CSS**
-The `thread` and `html` subcommands support providing an optional path to a CSS file to be linked as an external stylesheet in the generated HTML.
+The `save` and `regen` subcommands support providing an optional path to a CSS file to be linked as an external stylesheet in the generated HTML.
 
 #### **Custom Templates**
-The `thread` and `html` subcommands also support providing an optional path to a file containing an HTML template to be used in place of `thread-safe`'s default template. The contents of a provided template file must be parsable by Golang's [(*Template).Parse](https://pkg.go.dev/text/template#Template.Parse) function.
+The `save` and `regen` subcommands also support providing an optional path to a file containing an HTML template to be used in place of `thread-safe`'s default template. The contents of a provided template file must be parsable by Golang's [(*Template).Parse](https://pkg.go.dev/text/template#Template.Parse) function.
 
 The template must make use of the following objects:
 
