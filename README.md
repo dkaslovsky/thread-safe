@@ -18,7 +18,28 @@ Therefore, `thread-safe`'s definition of a thread is intentionally limited to
 > _a consecutive series of tweets authored by the same Twitter user_. 
 
 ## Example
-TODO: Find a good, non-controversial thread with media attachments as an example...
+To demonstrate typical usage, we've identified a Twitter thread of [Nathan MacKinnon hockey highlights](https://twitter.com/Avalanche/status/969990878944149504) from 2018 that we simply must preserve with a local copy. This thread is great not only for its content but also because it contains both images and video. The thread contains eight tweets before any non-author replies and the URL of the last tweet URL is `https://twitter.com/Avalanche/status/969990907490484225`.
+
+We'll name our local copy of this thread `Nathan MacKinnon 2018` and save it by running
+```
+$ thread-safe save "Nathan MacKinnon 2018" "https://twitter.com/Avalanche/status/969990907490484225"
+```
+or, equivalently,
+```
+$ thread-safe save "Nathan MacKinnon 2018" 969990907490484225
+```
+
+We now have a `thread.html` file in the `$THREAD_SAFE_PATH/Nathan_MacKinnon_2018` directory with the all of the thread's contents:
+
+https://user-images.githubusercontent.com/20505301/210184312-dcc6be97-3d1f-4fff-ba0e-36cd00f52add.mov
+
+Note that we ran `thread-safe` with the default HTML template and no CSS. If we later wish to regenerate `thread.html` with a specified template and CSS, we can run
+```
+$ thread-safe regen --template path/to/template --css path/to/css "Nathan MacKinnon 2018"
+```
+and the file will be rewritten using the target template and CSS files. We also could have provided the `--template` and `--css` flags to the original `thread-safe save` command.
+
+All resulting thread files can be found in this repository's [examples](examples) directory.
 
 ## Installation
 TODO
