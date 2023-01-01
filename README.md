@@ -68,7 +68,14 @@ All resulting thread files can be found in this repository's [examples](examples
 </br>
 
 ### Releases
-Available soon...
+The recommended installation method is downloading the latest released binary.
+Download the appropriate binary for your operating system from this repository's [releases](https://github.com/dkaslovsky/thread-safe/releases/latest) page or via `curl`.
+
+For example, to download the arm64 binary for macOS via curl run
+```
+$ curl -o thread-safe -L https://github.com/dkaslovsky/thread-safe/releases/latest/download/thread-safe_darwin_arm64
+```
+A similar path is used for other operating systems and architectures.
 
 </br>
 
