@@ -17,6 +17,17 @@ By using a dedicated directory for all generated files, `thread-safe` can be use
 Therefore, `thread-safe`'s definition of a thread is intentionally limited to
 > _a consecutive series of tweets authored by the same Twitter user_. 
 
+## Table of Contents
+- [Overview](#overview)
+- [Example](#example)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Top Level](#top-level)
+  - [Subcommands](#subcommands)
+  - [Custom CSS](#custom-css)
+  - [Custom Templates](#custom-templates)
+- [License](#license)
+
 ## Example
 To demonstrate typical usage, we've identified a Twitter thread of [Nathan MacKinnon hockey highlights](https://twitter.com/Avalanche/status/969990878944149504) from 2018 that we simply must preserve with a local copy. This thread is great not only for its content but also because it contains both images and video. The thread contains eight tweets before any non-author replies and the URL of the last tweet URL is `https://twitter.com/Avalanche/status/969990907490484225`.
 
@@ -58,7 +69,7 @@ While it is inconvenient to have to identify the last tweet in the thread rather
 
 </br>
 
-### Top Level Usage
+### Top Level
 ```
 $ thread-safe --help
 'thread-safe' saves a local copy of a Twitter thread
