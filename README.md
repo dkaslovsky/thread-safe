@@ -168,3 +168,7 @@ func (TemplateAttachment) IsImage() bool
 
 func (TemplateAttachment) IsVideo() bool
 ```
+
+## License
+thread-safe is released under the [MIT License](./LICENSE).
+Dependency licenses are available in this repository's [CREDITS](./CREDITS) file.
