@@ -54,6 +54,10 @@ func setUsage(name string) {
 }
 
 func printVersion(name string, version string) {
+	if version == "" {
+		fmt.Printf("%s version unavailable: built from source\n", name)
+		return
+	}
 	fmt.Printf("%s v%s\n", name, version)
 }
 

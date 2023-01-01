@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	name    = "thread-safe"
-	version = "0.0.1" // hardcode version for now
+	name = "thread-safe"
 )
+
+var version string // set by build ldflags
 
 func main() {
 	err := cmd.Run(name, version)
