@@ -10,6 +10,7 @@ Keep your favorite Twitter threads safe by downloading a local copy
   - [Releases](#releases)
   - [Installing from source](#installing-from-source)
 - [Usage](#usage)
+  - [Configuration](#configuration)
   - [Top Level](#top-level)
   - [Subcommands](#subcommands)
   - [Custom CSS](#custom-css)
@@ -102,6 +103,20 @@ While it is inconvenient to have to identify the last tweet in the thread rather
 
 </br>
 
+### Configuration
+#### API Bearer Token
+The [Twitter API bearer token](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens) can be set either in a configuration file `${HOME}/.thread-safe` using the convention
+```
+token = <token value>
+```
+or using the `THREAD_SAFE_TOKEN` environment variable, which will override any value set in the configuration file.
+
+#### Output Path
+Output files will be written to either the directory specified by `THREAD_SAFE_PATH` or the current directory if this environment variable is not set.
+
+
+</br>
+
 ### Top Level
 ```
 $ thread-safe --help
@@ -121,11 +136,10 @@ Flags:
 
 Environment Variables:
   THREAD_SAFE_PATH	top level path for thread files (current directory if unset)
-  THREAD_SAFE_TOKEN	bearer token for Twitter API
+  THREAD_SAFE_TOKEN	bearer token for Twitter API (overrides value read from "${HOME}/.thread-safe" if set)
 
 Use "thread-safe [command] --help" for more information about a command
 ```
-Note that the Twitter API bearer token must be provided via the `THREAD_SAFE_TOKEN` environment variable and that files will be written to either the directory specified by `THREAD_SAFE_PATH` or the current directory if the environment variable is not set.
 
 </br>
 
@@ -149,7 +163,7 @@ Flags:
 
 Environment Variables:
   THREAD_SAFE_PATH	top level path for thread files (current directory if unset)
-  THREAD_SAFE_TOKEN	bearer token for Twitter API
+  THREAD_SAFE_TOKEN	bearer token for Twitter API (overrides value read from "${HOME}/.thread-safe" if set)
 ```
 
 * `regen`: reprocess saved thread data using an updated template or CSS
@@ -169,7 +183,7 @@ Flags:
 
 Environment Variables:
   THREAD_SAFE_PATH	top level path for thread files (current directory if unset)
-  THREAD_SAFE_TOKEN	bearer token for Twitter API
+  THREAD_SAFE_TOKEN	bearer token for Twitter API (overrides value read from "${HOME}/.thread-safe" if set)
 ```
 </br>
 

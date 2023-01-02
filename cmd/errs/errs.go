@@ -12,5 +12,5 @@ var (
 	ErrNoArgs = errors.New("missing required argument(s)")
 
 	// ErrEmptyPath is a fatal returned when an empty path is received by a command
-	ErrEmptyPath = fmt.Errorf("fatal: path could not be determined from %s or the current directory", env.Path)
+	ErrEmptyPath = fmt.Errorf("fatal: path could not be determined from %s or the current directory", env.VarPath)
 )
