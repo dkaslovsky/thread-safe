@@ -112,7 +112,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 		return errs.ErrEmptyPath
 	}
 	if opts.token == "" {
-		return fmt.Errorf("token must be specifed by the environment variable %s and must not be empty", env.Token)
+		return fmt.Errorf("token must be specified by the environment variable %s and must not be empty", env.Token)
 	}
 	if opts.name == "" {
 		return errors.New("argument 'name' cannot be empty")

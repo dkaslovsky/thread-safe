@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	// Name of environment variable indicating path for saving threads
+	// Path is the name of the environment variable indicating path for saving threads
 	Path = "THREAD_SAFE_PATH"
-	// Name of environment variable indicating Twitter API bearer token
+	// Token is the name of the environment variable indicating Twitter API bearer token
 	Token = "THREAD_SAFE_TOKEN" // nolint:gosec
 )
 
@@ -36,7 +36,7 @@ func Parse() *Args {
 	}
 }
 
-// Useage returns a string describing the environment variables
+// Usage returns a string describing the environment variables
 func Usage() string {
 	return fmt.Sprintf(usage, Path, Token)
 }

@@ -58,7 +58,7 @@ func printVersion(name string, version string) {
 		fmt.Printf("%s version unavailable: built from source\n", name)
 		return
 	}
-	fmt.Printf("%s v%s\n", name, version)
+	fmt.Printf("%s %s\n", name, version)
 }
 
 const usage = `'%s' saves a local copy of a Twitter thread
