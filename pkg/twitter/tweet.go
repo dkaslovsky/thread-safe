@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tw "github.com/g8rswimmer/go-twitter/v2"
 )
@@ -82,7 +83,9 @@ type Attachment struct {
 
 // Name constructs the file name to use for saving an Attachment
 func (a Attachment) Name(tweetID string) string {
-	return fmt.Sprintf("tweet=%s-media_key=%s%s", tweetID, a.MediaKey, filepath.Ext(a.URL))
+	// Clean the file extension by removing any invalid params
+	ext := strings.SplitN(filepath.Ext(a.URL), "?", 2)[0]
+	return fmt.Sprintf("tweet=%s-media_key=%s%s", tweetID, a.MediaKey, ext)
 }
 
 // Download saves an Attachment as a file
