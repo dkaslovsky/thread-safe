@@ -111,17 +111,19 @@ type TemplateTweet struct {
 // TemplateAttachment represents a tweet's media attachment for a template
 type TemplateAttachment struct {
 	Path string // Path to the attachment file on the local filesystem
-	Ext  string // Attachment's extension (.jpg, .mpe4)
+	Ext  string // Attachment's extension
 }
 
 // IsImage evaluates if an attachment is an image file
 func (a TemplateAttachment) IsImage() bool {
-	return a.Ext == ".jpg"
+	_, valid := imageExtensions[a.Ext]
+	return valid
 }
 
 // IsVideo evaluates if an attachment is a video file
 func (a TemplateAttachment) IsVideo() bool {
-	return a.Ext == ".mp4"
+	_, valid := videoExtensions[a.Ext]
+	return valid
 }
 
 func loadTemplate(path string) (string, error) {
@@ -134,6 +136,17 @@ func loadTemplate(path string) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// imageExtensions is a lookup map for identifying image files by extension
+var imageExtensions = map[string]struct{}{
+	".jpg": {},
+	".png": {},
+}
+
+// videoExtensions is a lookup map for identifying video files by extension
+var videoExtensions = map[string]struct{}{
+	".mp4": {},
 }
 
 const defaultTemplate = `
