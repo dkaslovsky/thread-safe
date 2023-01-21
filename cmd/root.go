@@ -69,7 +69,7 @@ Usage:
 
 Available Commands:
   save    saves thread content and generates a local html file
-  html    regenerates an html file from a previously saved thread
+  regen   regenerates an html file from a previously saved thread
 
 Flags:
   -h, --help	 help for %s
