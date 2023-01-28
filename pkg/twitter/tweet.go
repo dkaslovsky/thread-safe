@@ -48,15 +48,30 @@ func ParseTweet(raw *tw.TweetDictionary) (*Tweet, error) {
 				Type:     attachement.Type,
 				URL:      attachement.URL,
 			})
+			continue
 		}
+
+		// Add the attachment variant with the largest bit rate
+		type variantAttachment struct {
+			url     string
+			bitRate int
+		}
+		curVariant := variantAttachment{}
 		for _, variant := range attachement.Variants {
-			if variant.URL != "" {
-				attachments = append(attachments, Attachment{
-					MediaKey: attachement.Key,
-					Type:     attachement.Type,
-					URL:      variant.URL,
-				})
+			if variant.URL == "" {
+				continue
 			}
+			if variant.BitRate > curVariant.bitRate {
+				curVariant.url = variant.URL
+				curVariant.bitRate = variant.BitRate
+			}
+		}
+		if curVariant.url != "" {
+			attachments = append(attachments, Attachment{
+				MediaKey: attachement.Key,
+				Type:     attachement.Type,
+				URL:      curVariant.url,
+			})
 		}
 	}
 
