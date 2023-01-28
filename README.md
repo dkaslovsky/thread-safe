@@ -190,6 +190,8 @@ Environment Variables:
 ### Custom CSS
 The `save` and `regen` subcommands support providing an optional path to a CSS file to be linked as an external stylesheet in the generated HTML.
 
+If a CSS file is not specified, `thread-safe` will attempt to use `${THREAD_SAFE_PATH}/thread-safe.css` as a default. This allows default specification of a global CSS file across all saved threads. The HTML will be generated without CSS if no such file exists.
+
 </br>
 
 ### Custom Templates
