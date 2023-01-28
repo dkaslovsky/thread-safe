@@ -184,7 +184,7 @@ const defaultTemplate = `
 			</br></br>
 		{{end}}
 		{{if .IsVideo}}
-			<video width="320" height="240" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
+			<video width="320" height="auto" controls autoplay loop muted><source src=attachments/{{.Path}} type="video/mp4"></video>
 			</br></br>
 		{{end}}
 	{{end}}
