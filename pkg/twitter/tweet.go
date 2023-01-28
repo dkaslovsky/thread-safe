@@ -61,7 +61,7 @@ func ParseTweet(raw *tw.TweetDictionary) (*Tweet, error) {
 			if variant.URL == "" {
 				continue
 			}
-			if variant.BitRate > curVariant.bitRate {
+			if variant.BitRate >= curVariant.bitRate {
 				curVariant.url = variant.URL
 				curVariant.bitRate = variant.BitRate
 			}
