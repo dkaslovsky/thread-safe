@@ -124,6 +124,11 @@ func loadTemplate(threadPath string, templateFile string, cssFile string) (strin
 		return "", err
 	}
 
+	// Ignore CSS if the html template does not provide the "%s" format verb for it to be included
+	if !strings.Contains(html, "%s") {
+		return html, nil
+	}
+
 	return fmt.Sprintf(html, getCSSPath(threadPath, cssFile)), nil
 }
 
