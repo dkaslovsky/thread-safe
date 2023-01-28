@@ -202,11 +202,8 @@ The template must make use of the following objects:
 type TemplateThread struct {
 	Name   string          // Name of thread
 	Header string          // Thread header information
-	CSS    string          // Path to custom CSS file
 	Tweets []TemplateTweet // Thread's tweets
 }
-
-func (TemplateThread) HasCSS() bool
 ```
 * The nested `TemplateTweet` object defined by
 ```go
@@ -226,6 +223,16 @@ func (TemplateAttachment) IsImage() bool
 
 func (TemplateAttachment) IsVideo() bool
 ```
+
+A custom template may specify a placeholder for a CSS file by using the `%s` format verb.
+For example,
+```html
+<head>
+<link rel="stylesheet" type="text/css" href="%s" media="screen" />
+</head>
+```
+is used in the default template to inject a specified CSS file path in place of the `%s` verb.
+Note that CSS file path will be injected in place of the _first_ occurrence of `%s` verb.
 
 </br>
 
