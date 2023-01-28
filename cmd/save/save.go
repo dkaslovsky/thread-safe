@@ -39,8 +39,8 @@ func run(opts *cmdOpts) error {
 		return fmt.Errorf("%s already exists, rename or delete instead of overwriting", threadDir)
 	}
 
-	client := twitter.NewTwitterClient(opts.token)
-	th, err := thread.NewThread(client, opts.name, opts.tweetID)
+	client := twitter.NewClient(opts.token)
+	th, err := thread.New(client, opts.name, opts.tweetID)
 	if err != nil {
 		return fmt.Errorf("failed to parse thread: %w", err)
 	}

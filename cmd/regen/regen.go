@@ -36,7 +36,7 @@ func run(opts *cmdOpts) error {
 		return fmt.Errorf("%s does not exist, check the thread name", threadDir)
 	}
 
-	th, err := thread.NewThreadFromFile(threadDir)
+	th, err := thread.Load(threadDir)
 	if err != nil {
 		return fmt.Errorf("failed to load thread from file: %w", err)
 	}

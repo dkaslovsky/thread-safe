@@ -13,8 +13,8 @@ type Client interface {
 	LookupTweet(id string) (*Tweet, error)
 }
 
-// NewTwitterClient constructs a Client for querying the Twitter API
-func NewTwitterClient(token string) Client {
+// NewClient constructs a Client for querying the Twitter API
+func NewClient(token string) Client {
 	return &twitterClient{
 		c: &tw.Client{
 			Authorizer: authorize{

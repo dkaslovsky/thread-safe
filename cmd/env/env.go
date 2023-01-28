@@ -9,14 +9,15 @@ import (
 )
 
 const (
-	// Path is the name of the environment variable indicating path for saving threads
+	// VarPath is the name of the environment variable indicating path for saving threads
 	VarPath = "THREAD_SAFE_PATH"
-	// Token is the name of the environment variable containing the Twitter API bearer token
+	// VarToken is the name of the environment variable containing the Twitter API bearer token
 	VarToken = "THREAD_SAFE_TOKEN" // nolint:gosec
-	// tokenFileDir is the directory containing the file tokenFileName
-	tokenFileDir = "${HOME}"
-	// tokenFileName is the name of the file in the user's $HOME directory containing the Twitter API bearer token
-	tokenFileName = ".thread-safe" // nolint:gosec
+
+	// fileDirToken is the directory containing the file tokenFileName
+	fileDirToken = "${HOME}"
+	// fileNameToken is the name of the file in the user's $HOME directory containing the Twitter API bearer token
+	fileNameToken = ".thread-safe" // nolint:gosec
 )
 
 // Args holds environment variable values
@@ -52,12 +53,12 @@ func Usage() string {
 
 // TokenFilePath returns the unexpanded path to the file containing the Twitter API bearer token
 func TokenFilePath() string {
-	return filepath.Clean(filepath.Join(tokenFileDir, tokenFileName))
+	return filepath.Clean(filepath.Join(fileDirToken, fileNameToken))
 }
 
 // tokenFilePathExpanded returns the full path to the file containing the Twitter API bearer token
 func tokenFilePathExpanded() string {
-	return filepath.Clean(filepath.Join(os.ExpandEnv(tokenFileDir), tokenFileName))
+	return filepath.Clean(filepath.Join(os.ExpandEnv(fileDirToken), fileNameToken))
 }
 
 func readTokenFile() string {
