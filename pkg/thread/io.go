@@ -3,7 +3,6 @@ package thread
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,18 +28,10 @@ func DirName(appDir string, threadName string) string {
 	return filepath.Join(appDir, strings.Replace(threadName, " ", "_", -1))
 }
 
-func CreateDir(threadDir string) error {
-	return os.MkdirAll(filepath.Clean(threadDir), 0o750)
-}
-
-// Load constructs a Thread by loading data from a directory
-func Load(dir string) (*Thread, error) {
-	return FromJSON(filepath.Join(dir, fileNameJSON))
-}
-
 // FromJSON constructs a Thread by loading data from a JSON file
-func FromJSON(jsonFile string) (*Thread, error) {
-	b, err := os.ReadFile(filepath.Clean(jsonFile))
+func FromJSON(threadDir string) (*Thread, error) {
+	jsonFile := filepath.Clean(filepath.Join(threadDir, fileNameJSON))
+	b, err := os.ReadFile(jsonFile)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +47,8 @@ func (th *Thread) ToJSON(threadDir string) error {
 		return err
 	}
 
-	jsonPath := filepath.Clean(filepath.Join(threadDir, fileNameJSON))
-	return os.WriteFile(jsonPath, b, 0o600)
+	jsonFile := filepath.Clean(filepath.Join(threadDir, fileNameJSON))
+	return os.WriteFile(jsonFile, b, 0o600)
 }
 
 // ToHTML generates and saves an HTML file from a thread using default or provided template and CSS files
@@ -73,20 +64,19 @@ func (th *Thread) ToHTML(threadDir string, templateFile string, cssFile string) 
 	}
 
 	htmlFile := filepath.Clean(filepath.Join(threadDir, fileNameHTML))
-
-	tmplThread, ttErr := NewTemplateThread(th)
-	if ttErr != nil {
-		log.Fatal(ttErr)
-	}
 	f, fErr := os.Create(htmlFile)
 	if fErr != nil {
-		return fErr
+		return fmt.Errorf("failed to open file %s: %w", htmlFile, fErr)
 	}
 	defer func() {
 		_ = f.Close()
 	}()
 
-	return tmpl.Execute(f, tmplThread)
+	eErr := tmpl.Execute(f, NewTemplateThread(th))
+	if eErr != nil {
+		return fmt.Errorf("failed to execute template: %w", eErr)
+	}
+	return nil
 }
 
 // DownloadAttachments saves all media attachments from a Thread's

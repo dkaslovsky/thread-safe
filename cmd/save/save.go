@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
@@ -45,7 +46,7 @@ func run(opts *cmdOpts) error {
 		return fmt.Errorf("failed to parse thread: %w", err)
 	}
 
-	dErr := thread.CreateDir(threadDir)
+	dErr := os.MkdirAll(filepath.Clean(threadDir), 0o750)
 	if dErr != nil {
 		return fmt.Errorf("failed to create thread directory %s: %w", threadDir, dErr)
 	}
