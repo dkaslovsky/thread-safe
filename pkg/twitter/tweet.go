@@ -116,7 +116,7 @@ func (a Attachment) Download(path string) error {
 		_ = resp.Body.Close()
 	}()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("download of %s failed with status code: %d", a.URL, resp.StatusCode)
 	}
 
