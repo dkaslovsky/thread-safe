@@ -37,7 +37,7 @@ func NewTemplateThread(th *Thread) TemplateThread {
 			attachmentFile := attachment.Name(tweet.ID)
 
 			// Skip attachment if not downloaded
-			if !attachmentDir.Exists(attachmentFile) {
+			if _, exists := attachmentDir.SubDir(attachmentFile); !exists {
 				continue
 			}
 

@@ -30,8 +30,7 @@ func FromJSON(appDir string, threadName string) (*Thread, error) {
 		return nil, fmt.Errorf("%s not found", dir)
 	}
 
-	jsonFile := filepath.Clean(dir.Join(fileNameJSON))
-	b, err := os.ReadFile(jsonFile)
+	b, err := os.ReadFile(dir.Join(fileNameJSON))
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +52,7 @@ func (th *Thread) ToJSON() error {
 		return err
 	}
 
-	jsonFile := filepath.Clean(th.Dir.Join(fileNameJSON))
-	return os.WriteFile(jsonFile, b, 0o600)
+	return os.WriteFile(th.Dir.Join(fileNameJSON), b, 0o600)
 }
 
 // ToHTML generates and saves an HTML file from a thread using default or provided template and CSS files
@@ -69,10 +67,9 @@ func (th *Thread) ToHTML(templateFile string, cssFile string) error {
 		return fmt.Errorf("failed to parse template: %w", tErr)
 	}
 
-	htmlFile := filepath.Clean(th.Dir.Join(fileNameHTML))
-	f, fErr := os.Create(htmlFile)
+	f, fErr := os.Create(th.Dir.Join(fileNameHTML))
 	if fErr != nil {
-		return fmt.Errorf("failed to open file %s: %w", htmlFile, fErr)
+		return fmt.Errorf("failed to open HTML file: %w", fErr)
 	}
 	defer func() {
 		_ = f.Close()
@@ -95,7 +92,7 @@ func (th *Thread) DownloadAttachments() error {
 
 	for _, tweet := range th.Tweets {
 		for _, attachment := range tweet.Attachments {
-			err := attachment.Download(filepath.Clean(attachmentDir.Join(attachment.Name(tweet.ID))))
+			err := attachment.Download(attachmentDir.Join(attachment.Name(tweet.ID)))
 			if err != nil {
 				return err
 			}
@@ -111,8 +108,8 @@ func loadHTMLTemplateFile(threadDir *Directory, templateFile string) (string, er
 	}
 
 	// Try to load default template from file
-	if threadDir.Exists("..", fileNameTemplateDefault) {
-		return readFile(threadDir.Join("..", fileNameTemplateDefault))
+	if defaultFile, exists := threadDir.SubDir("..", fileNameTemplateDefault); exists {
+		return readFile(defaultFile)
 	}
 
 	return "", nil
@@ -124,8 +121,8 @@ func getCSSFile(threadDir *Directory, cssFile string) string {
 	}
 
 	// Try to load default CSS file
-	if threadDir.Exists("..", fileNameCSSDefault) {
-		return threadDir.Join("..", fileNameCSSDefault)
+	if defaultFile, exists := threadDir.SubDir("..", fileNameCSSDefault); exists {
+		return defaultFile
 	}
 
 	return ""
