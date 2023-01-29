@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"os"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
@@ -31,17 +30,12 @@ func Run(appName string, args []string) error {
 }
 
 func run(opts *cmdOpts) error {
-	threadDir := thread.DirName(opts.path, opts.name)
-	if _, err := os.Stat(threadDir); os.IsNotExist(err) {
-		return fmt.Errorf("%s does not exist, check the thread name", threadDir)
-	}
-
-	th, err := thread.FromJSON(threadDir)
+	th, err := thread.FromJSON(opts.path, opts.name)
 	if err != nil {
 		return fmt.Errorf("failed to load thread from file: %w", err)
 	}
 
-	tErr := th.ToHTML(threadDir, opts.template, opts.css)
+	tErr := th.ToHTML(opts.template, opts.css)
 	if tErr != nil {
 		return fmt.Errorf("failed to write thread HTML file: %w", tErr)
 	}

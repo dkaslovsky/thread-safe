@@ -14,24 +14,31 @@ const (
 
 // Thread represents a Twitter thread
 type Thread struct {
+	Dir    *Directory       `json:"-"`
 	Name   string           `json:"name"`
 	Tweets []*twitter.Tweet `json:"tweets"`
 }
 
-// New constructs a Thread by querying the Twitter API
-func New(client twitter.Client, name string, lastID string) (*Thread, error) {
-	tweets, err := walkTweets(client, lastID, maxThreadLen)
+// New constructs a Thread that is ready to load tweets from the Twitter API
+func New(topLevelDir string, name string) *Thread {
+	return &Thread{
+		Name: name,
+		Dir:  NewDirectory(topLevelDir, name),
+	}
+}
+
+// Load queries the Twitter API to load tweets into a Thread
+func (th *Thread) Load(client twitter.Client, lastTweetID string) error {
+	tweets, err := walkTweets(client, lastTweetID, maxThreadLen)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Tweets are fetched from last to first so reverse the order
 	reverseSlice(tweets)
 
-	return &Thread{
-		Name:   name,
-		Tweets: tweets,
-	}, nil
+	th.Tweets = tweets
+	return nil
 }
 
 // Len returns the number of tweets contained in a Thread

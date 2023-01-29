@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 )
 
@@ -23,37 +22,44 @@ const (
 	fileNameJSON = "thread.json"
 )
 
-// DirName constructs the name of the directory where thread files are written
-func DirName(appDir string, threadName string) string {
-	return filepath.Join(appDir, strings.Replace(threadName, " ", "_", -1))
-}
-
 // FromJSON constructs a Thread by loading data from a JSON file
-func FromJSON(threadDir string) (*Thread, error) {
-	jsonFile := filepath.Clean(filepath.Join(threadDir, fileNameJSON))
+func FromJSON(appDir string, threadName string) (*Thread, error) {
+	dir := NewDirectory(appDir, threadName)
+
+	if !dir.Exists() {
+		return nil, fmt.Errorf("%s not found", dir)
+	}
+
+	jsonFile := filepath.Clean(dir.Join(fileNameJSON))
 	b, err := os.ReadFile(jsonFile)
 	if err != nil {
 		return nil, err
 	}
 
-	th := &Thread{}
-	return th, json.Unmarshal(b, th)
+	th := Thread{}
+	jErr := json.Unmarshal(b, &th)
+	if jErr != nil {
+		return nil, jErr
+	}
+
+	th.Dir = dir
+	return &th, nil
 }
 
 // ToJSON generates and saves a JSON file from a Thread's tweets
-func (th *Thread) ToJSON(threadDir string) error {
+func (th *Thread) ToJSON() error {
 	b, err := json.Marshal(th)
 	if err != nil {
 		return err
 	}
 
-	jsonFile := filepath.Clean(filepath.Join(threadDir, fileNameJSON))
+	jsonFile := filepath.Clean(th.Dir.Join(fileNameJSON))
 	return os.WriteFile(jsonFile, b, 0o600)
 }
 
 // ToHTML generates and saves an HTML file from a thread using default or provided template and CSS files
-func (th *Thread) ToHTML(threadDir string, templateFile string, cssFile string) error {
-	htmlTemplate, err := loadTemplate(threadDir, templateFile, cssFile)
+func (th *Thread) ToHTML(templateFile string, cssFile string) error {
+	htmlTemplate, err := loadTemplate(th.Dir, templateFile, cssFile)
 	if err != nil {
 		return fmt.Errorf("failed to load template: %w", err)
 	}
@@ -63,7 +69,7 @@ func (th *Thread) ToHTML(threadDir string, templateFile string, cssFile string) 
 		return fmt.Errorf("failed to parse template: %w", tErr)
 	}
 
-	htmlFile := filepath.Clean(filepath.Join(threadDir, fileNameHTML))
+	htmlFile := filepath.Clean(th.Dir.Join(fileNameHTML))
 	f, fErr := os.Create(htmlFile)
 	if fErr != nil {
 		return fmt.Errorf("failed to open file %s: %w", htmlFile, fErr)
@@ -80,16 +86,16 @@ func (th *Thread) ToHTML(threadDir string, templateFile string, cssFile string) 
 }
 
 // DownloadAttachments saves all media attachments from a Thread's
-func (th *Thread) DownloadAttachments(threadDir string) error {
-	attachmentDir := filepath.Join(threadDir, dirNameAttachments)
-	err := os.MkdirAll(attachmentDir, 0o750)
+func (th *Thread) DownloadAttachments() error {
+	attachmentDir := NewDirectory(th.Dir.Join(dirNameAttachments), "")
+	err := attachmentDir.Create()
 	if err != nil {
 		return err
 	}
 
 	for _, tweet := range th.Tweets {
 		for _, attachment := range tweet.Attachments {
-			err := attachment.Download(filepath.Clean(filepath.Join(attachmentDir, attachment.Name(tweet.ID))))
+			err := attachment.Download(filepath.Clean(attachmentDir.Join(attachment.Name(tweet.ID))))
 			if err != nil {
 				return err
 			}
@@ -99,29 +105,27 @@ func (th *Thread) DownloadAttachments(threadDir string) error {
 	return nil
 }
 
-func loadHTMLTemplateFile(threadDir string, templateFile string) (string, error) {
+func loadHTMLTemplateFile(threadDir *Directory, templateFile string) (string, error) {
 	if templateFile != "" {
 		return readFile(templateFile)
 	}
 
 	// Try to load default template from file
-	defaultTemplateFile := filepath.Clean(filepath.Join(threadDir, "..", fileNameTemplateDefault))
-	if _, err := os.Stat(defaultTemplateFile); !os.IsNotExist(err) {
-		return readFile(defaultTemplateFile)
+	if threadDir.Exists("..", fileNameTemplateDefault) {
+		return readFile(threadDir.Join("..", fileNameTemplateDefault))
 	}
 
 	return "", nil
 }
 
-func getCSSFile(threadDir string, cssFile string) string {
+func getCSSFile(threadDir *Directory, cssFile string) string {
 	if cssFile != "" {
 		return filepath.Clean(cssFile)
 	}
 
 	// Try to load default CSS file
-	defaultCSSFile := filepath.Clean(filepath.Join(threadDir, "..", fileNameCSSDefault))
-	if _, err := os.Stat(defaultCSSFile); !os.IsNotExist(err) {
-		return defaultCSSFile
+	if threadDir.Exists("..", fileNameCSSDefault) {
+		return threadDir.Join("..", fileNameCSSDefault)
 	}
 
 	return ""

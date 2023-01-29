@@ -2,7 +2,6 @@ package thread
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -28,7 +27,9 @@ type TemplateAttachment struct {
 
 // NewTemplateThread constructs a TemplateThread from a thread
 func NewTemplateThread(th *Thread) TemplateThread {
+	attachmentDir := NewDirectory(th.Dir.Join(dirNameAttachments), "")
 	threadLen := th.Len()
+
 	tweets := []TemplateTweet{}
 	for i, tweet := range th.Tweets {
 		attachments := []TemplateAttachment{}
@@ -36,7 +37,7 @@ func NewTemplateThread(th *Thread) TemplateThread {
 			attachmentFile := attachment.Name(tweet.ID)
 
 			// Skip attachment if not downloaded
-			if _, err := os.Stat(attachmentFile); os.IsNotExist(err) {
+			if !attachmentDir.Exists(attachmentFile) {
 				continue
 			}
 
@@ -81,7 +82,7 @@ func (a TemplateAttachment) IsVideo() bool {
 	return valid
 }
 
-func loadTemplate(threadDir string, templateFile string, cssFile string) (string, error) {
+func loadTemplate(threadDir *Directory, templateFile string, cssFile string) (string, error) {
 	html, err := loadHTMLTemplateFile(threadDir, templateFile)
 	if err != nil {
 		return "", err

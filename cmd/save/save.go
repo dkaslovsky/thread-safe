@@ -5,8 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
@@ -35,35 +33,35 @@ func Run(appName string, args []string) error {
 }
 
 func run(opts *cmdOpts) error {
-	threadDir := thread.DirName(opts.path, opts.name)
-	if _, err := os.Stat(threadDir); !os.IsNotExist(err) {
-		return fmt.Errorf("%s already exists, rename or delete instead of overwriting", threadDir)
+	th := thread.New(opts.path, opts.name)
+
+	if th.Dir.Exists() {
+		return fmt.Errorf("%s already exists, rename or delete instead of overwriting", th.Dir)
 	}
 
-	client := twitter.NewClient(opts.token)
-	th, err := thread.New(client, opts.name, opts.tweetID)
+	err := th.Load(twitter.NewClient(opts.token), opts.tweetID)
 	if err != nil {
 		return fmt.Errorf("failed to parse thread: %w", err)
 	}
 
-	dErr := os.MkdirAll(filepath.Clean(threadDir), 0o750)
+	dErr := th.Dir.Create()
 	if dErr != nil {
-		return fmt.Errorf("failed to create thread directory %s: %w", threadDir, dErr)
+		return fmt.Errorf("failed to create thread directory %s: %w", th.Dir, dErr)
 	}
 
-	fErr := th.ToJSON(threadDir)
+	fErr := th.ToJSON()
 	if fErr != nil {
 		return fmt.Errorf("failed to write thread JSON file: %w", fErr)
 	}
 
 	if !opts.noAttachments {
-		err := th.DownloadAttachments(threadDir)
+		err := th.DownloadAttachments()
 		if err != nil {
 			return fmt.Errorf("failed to save thread attachment files: %w", err)
 		}
 	}
 
-	tErr := th.ToHTML(threadDir, opts.template, opts.css)
+	tErr := th.ToHTML(opts.template, opts.css)
 	if tErr != nil {
 		return fmt.Errorf("failed to write thread HTML file: %w", tErr)
 	}
