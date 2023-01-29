@@ -75,9 +75,12 @@ func (a TemplateAttachment) IsVideo() bool {
 }
 
 func loadTemplate(threadPath string, templateFile string, cssFile string) (string, error) {
-	html, err := loadHTMLTemplateFile(templateFile)
+	html, err := loadHTMLTemplateFile(threadPath, templateFile)
 	if err != nil {
 		return "", err
+	}
+	if html == "" {
+		html = defaultTemplate
 	}
 
 	// Protect against improper formatting if the html template does not provide the "%s" verb

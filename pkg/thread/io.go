@@ -16,6 +16,8 @@ const (
 
 	// fileNameCSSDefault is the CSS file used if it exists and no other CSS file is specified
 	fileNameCSSDefault = "thread-safe.css"
+	// fileNameTemplateDefault is the template file used if it exists and no other template file is specified
+	fileNameTemplateDefault = "thread-safe.tmpl"
 	// fileNameHTML is the name used for the generated HTML file
 	fileNameHTML = "thread.html"
 	// fileNameJSON is the name used for the generated JSON file
@@ -41,7 +43,7 @@ func FromJSON(jsonPath string) (*Thread, error) {
 	}
 
 	th := &Thread{}
-	return th, json.Unmarshal(b, &th)
+	return th, json.Unmarshal(b, th)
 }
 
 // ToJSON generates and saves a JSON file from a Thread's tweets
@@ -110,16 +112,18 @@ func (th *Thread) DownloadAttachments(path string) error {
 	return nil
 }
 
-func loadHTMLTemplateFile(path string) (string, error) {
-	if path == "" {
-		return defaultTemplate, nil
+func loadHTMLTemplateFile(threadPath string, templateFile string) (string, error) {
+	if templateFile != "" {
+		return readFile(templateFile)
 	}
-	templatePath := filepath.Clean(path)
-	b, err := os.ReadFile(templatePath)
-	if err != nil {
-		return "", err
+
+	// Try to load default template from file
+	defaultTemplateFile := filepath.Clean(filepath.Join(threadPath, "..", fileNameTemplateDefault))
+	if _, err := os.Stat(defaultTemplateFile); !os.IsNotExist(err) {
+		return readFile(defaultTemplateFile)
 	}
-	return string(b), nil
+
+	return "", nil
 }
 
 func getCSSPath(threadPath string, cssFile string) string {
@@ -127,11 +131,19 @@ func getCSSPath(threadPath string, cssFile string) string {
 		return filepath.Clean(cssFile)
 	}
 
-	// Try to load global CSS file
+	// Try to load default CSS file
 	defaultCSS := filepath.Clean(filepath.Join(threadPath, "..", fileNameCSSDefault))
 	if _, err := os.Stat(defaultCSS); !os.IsNotExist(err) {
 		return defaultCSS
 	}
 
 	return ""
+}
+
+func readFile(path string) (string, error) {
+	b, err := os.ReadFile(filepath.Clean(path))
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }

@@ -236,6 +236,8 @@ For example,
 is used in the default template to inject a specified CSS file path in place of the `%s` verb.
 Note that CSS file path will be injected in place of the _first_ occurrence of `%s` verb.
 
+If a template file is not specified, `thread-safe` will attempt to use `${THREAD_SAFE_PATH}/thread-safe.tmpl` as a default. The HTML will be generated using the predefined default template if no such file exists.
+
 </br>
 
 ## License
