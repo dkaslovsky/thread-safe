@@ -2,6 +2,7 @@ package thread
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -26,16 +27,22 @@ type TemplateAttachment struct {
 }
 
 // NewTemplateThread constructs a TemplateThread from a thread
-func NewTemplateThread(th *Thread) (TemplateThread, error) {
+func NewTemplateThread(th *Thread) TemplateThread {
 	threadLen := th.Len()
 	tweets := []TemplateTweet{}
 	for i, tweet := range th.Tweets {
 		attachments := []TemplateAttachment{}
 		for _, attachment := range tweet.Attachments {
-			path := attachment.Name(tweet.ID)
+			attachmentFile := attachment.Name(tweet.ID)
+
+			// Skip attachment if not downloaded
+			if _, err := os.Stat(attachmentFile); os.IsNotExist(err) {
+				continue
+			}
+
 			attachments = append(attachments, TemplateAttachment{
-				Path: path,
-				Ext:  filepath.Ext(path),
+				Path: attachmentFile,
+				Ext:  filepath.Ext(attachmentFile),
 			})
 		}
 		tweets = append(tweets, TemplateTweet{
@@ -48,7 +55,7 @@ func NewTemplateThread(th *Thread) (TemplateThread, error) {
 		Name:   th.Name,
 		Header: th.Metadata(),
 		Tweets: tweets,
-	}, nil
+	}
 }
 
 // imageExtensions is a lookup map for identifying image files by extension
