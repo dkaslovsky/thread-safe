@@ -56,8 +56,8 @@ func (th *Thread) ToJSON() error {
 }
 
 // ToHTML generates and saves an HTML file from a thread using default or provided template and CSS files
-func (th *Thread) ToHTML(templateFile string, cssFile string) error {
-	htmlTemplate, err := loadTemplate(th.Dir, templateFile, cssFile)
+func (th *Thread) ToHTML(templateFileName string, cssFileName string) error {
+	htmlTemplate, err := loadTemplate(th.Dir, templateFileName, cssFileName)
 	if err != nil {
 		return fmt.Errorf("failed to load template: %w", err)
 	}
@@ -102,9 +102,9 @@ func (th *Thread) DownloadAttachments() error {
 	return nil
 }
 
-func loadHTMLTemplateFile(threadDir *Directory, templateFile string) (string, error) {
-	if templateFile != "" {
-		return readFile(templateFile)
+func loadHTMLTemplateFile(threadDir *Directory, templateFileName string) (string, error) {
+	if templateFileName != "" {
+		return readFile(templateFileName)
 	}
 
 	// Try to load default template from file
@@ -115,9 +115,9 @@ func loadHTMLTemplateFile(threadDir *Directory, templateFile string) (string, er
 	return "", nil
 }
 
-func getCSSFile(threadDir *Directory, cssFile string) string {
-	if cssFile != "" {
-		return filepath.Clean(cssFile)
+func getCSSFilePath(threadDir *Directory, cssFileName string) string {
+	if cssFileName != "" {
+		return cssFileName
 	}
 
 	// Try to load default CSS file

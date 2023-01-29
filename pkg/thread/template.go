@@ -34,16 +34,16 @@ func NewTemplateThread(th *Thread) TemplateThread {
 	for i, tweet := range th.Tweets {
 		attachments := []TemplateAttachment{}
 		for _, attachment := range tweet.Attachments {
-			attachmentFile := attachment.Name(tweet.ID)
+			attachmentFileName := attachment.Name(tweet.ID)
 
 			// Skip attachment if not downloaded
-			if _, exists := attachmentDir.SubDir(attachmentFile); !exists {
+			if _, exists := attachmentDir.SubDir(attachmentFileName); !exists {
 				continue
 			}
 
 			attachments = append(attachments, TemplateAttachment{
-				Path: attachmentFile,
-				Ext:  filepath.Ext(attachmentFile),
+				Path: attachmentFileName,
+				Ext:  filepath.Ext(attachmentFileName),
 			})
 		}
 		tweets = append(tweets, TemplateTweet{
@@ -82,8 +82,8 @@ func (a TemplateAttachment) IsVideo() bool {
 	return valid
 }
 
-func loadTemplate(threadDir *Directory, templateFile string, cssFile string) (string, error) {
-	html, err := loadHTMLTemplateFile(threadDir, templateFile)
+func loadTemplate(threadDir *Directory, templateFileName string, cssFileName string) (string, error) {
+	html, err := loadHTMLTemplateFile(threadDir, templateFileName)
 	if err != nil {
 		return "", err
 	}
@@ -96,7 +96,7 @@ func loadTemplate(threadDir *Directory, templateFile string, cssFile string) (st
 		return html, nil
 	}
 
-	return fmt.Sprintf(html, getCSSFile(threadDir, cssFile)), nil
+	return fmt.Sprintf(html, filepath.Clean(getCSSFilePath(threadDir, cssFileName))), nil
 }
 
 const defaultTemplate = `
