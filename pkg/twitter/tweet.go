@@ -104,7 +104,7 @@ func (a Attachment) Name(tweetID string) string {
 }
 
 // Download saves an Attachment as a file
-func (a Attachment) Download(path string) error {
+func (a Attachment) Download(fileName string) error {
 	if u, err := url.ParseRequestURI(a.URL); !(err == nil && u.Scheme != "" && u.Host != "") {
 		return fmt.Errorf("invalid attachment URL %s for media_key %s", a.URL, a.MediaKey)
 	}
@@ -120,7 +120,7 @@ func (a Attachment) Download(path string) error {
 		return fmt.Errorf("download of %s failed with status code: %d", a.URL, resp.StatusCode)
 	}
 
-	f, fErr := os.Create(filepath.Clean(path))
+	f, fErr := os.Create(filepath.Clean(fileName))
 	if fErr != nil {
 		return fErr
 	}

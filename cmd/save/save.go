@@ -34,7 +34,7 @@ func Run(appName string, args []string) error {
 }
 
 func run(opts *cmdOpts) error {
-	threadDir := thread.Dir(opts.path, opts.name)
+	threadDir := thread.DirName(opts.path, opts.name)
 	if _, err := os.Stat(threadDir); !os.IsNotExist(err) {
 		return fmt.Errorf("%s already exists, rename or delete instead of overwriting", threadDir)
 	}
@@ -43,6 +43,11 @@ func run(opts *cmdOpts) error {
 	th, err := thread.New(client, opts.name, opts.tweetID)
 	if err != nil {
 		return fmt.Errorf("failed to parse thread: %w", err)
+	}
+
+	dErr := thread.CreateDir(threadDir)
+	if dErr != nil {
+		return fmt.Errorf("failed to create thread directory %s: %w", threadDir, dErr)
 	}
 
 	fErr := th.ToJSON(threadDir)

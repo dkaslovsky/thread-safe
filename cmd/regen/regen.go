@@ -31,7 +31,7 @@ func Run(appName string, args []string) error {
 }
 
 func run(opts *cmdOpts) error {
-	threadDir := thread.Dir(opts.path, opts.name)
+	threadDir := thread.DirName(opts.path, opts.name)
 	if _, err := os.Stat(threadDir); os.IsNotExist(err) {
 		return fmt.Errorf("%s does not exist, check the thread name", threadDir)
 	}

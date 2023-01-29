@@ -74,8 +74,8 @@ func (a TemplateAttachment) IsVideo() bool {
 	return valid
 }
 
-func loadTemplate(threadPath string, templateFile string, cssFile string) (string, error) {
-	html, err := loadHTMLTemplateFile(threadPath, templateFile)
+func loadTemplate(threadDir string, templateFile string, cssFile string) (string, error) {
+	html, err := loadHTMLTemplateFile(threadDir, templateFile)
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,7 @@ func loadTemplate(threadPath string, templateFile string, cssFile string) (strin
 		return html, nil
 	}
 
-	return fmt.Sprintf(html, getCSSPath(threadPath, cssFile)), nil
+	return fmt.Sprintf(html, getCSSFile(threadDir, cssFile)), nil
 }
 
 const defaultTemplate = `
