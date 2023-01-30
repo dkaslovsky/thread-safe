@@ -118,7 +118,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if opts.token == "" {
 		return fmt.Errorf("token must be specified in %s or by the environment variable %s", env.TokenFilePath(), env.VarToken)
 	}
-	if opts.name == "" {
+	if strings.TrimSpace(opts.name) == "" {
 		return errors.New("argument 'name' cannot be empty")
 	}
 	if opts.tweetID == "" {

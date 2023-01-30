@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/dkaslovsky/thread-safe/cmd/env"
 	"github.com/dkaslovsky/thread-safe/cmd/errs"
@@ -77,7 +78,7 @@ func parseArgs(cmd *flag.FlagSet, opts *cmdOpts, args []string) error {
 	if opts.path == "" {
 		return errs.ErrEmptyPath
 	}
-	if opts.name == "" {
+	if strings.TrimSpace(opts.name) == "" {
 		return errors.New("argument 'name' cannot be empty")
 	}
 	return nil
